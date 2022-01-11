@@ -1,0 +1,9 @@
+[Unit]
+Description=e-Navigation API Gateway Service
+After=syslog.target
+
+[Service]
+ExecStart=/opt/e-nav/apiGateway/apiGateway.jar
+
+[Install]
+WantedBy=multi-user.target
