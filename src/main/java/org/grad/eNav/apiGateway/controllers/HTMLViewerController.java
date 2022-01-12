@@ -16,12 +16,17 @@
 
 package org.grad.eNav.apiGateway.controllers;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * The Home Viewer Controller.
@@ -34,6 +39,12 @@ import reactor.core.publisher.Mono;
 public class HTMLViewerController {
 
     /**
+     * The index HTML source file.
+     */
+    @Value("classpath:templates/index.html")
+    Resource resourceFile;
+
+    /**
      * The home page of the API gateway.
      *
      * This can just be a list of all the services currently available along
@@ -43,29 +54,8 @@ public class HTMLViewerController {
      * @return The home page output
      */
     @GetMapping("/")
-    public Mono<String> index(WebSession session) {
-        return Mono.just(
-                "<html lang=\"en\">\n" +
-                "  <head>\n" +
-                "    <meta charset=\"utf-8\">\n" +
-                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n" +
-                "    <meta name=\"description\" content=\"\">\n" +
-                "    <meta name=\"author\" content=\"\">\n" +
-                "    <title>Please sign in</title>\n" +
-                "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n" +
-                "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n" +
-                "  </head>\n" +
-                "  <body>\n" +
-                "     <div class=\"container\">\n" +
-                "         <div class=\"container\"><h2 class=\"form-signin-heading\">e-Navigation Services</h2><table class=\"table table-striped\">\n" +
-                "             <tr><td><a href='/msg-broker/'>Message Broker</a></td></tr>\n" +
-                "             <tr><td><a href='/vdes-ctrl/'>VDES Controller</a></td></tr>\n" +
-                "             <tr><td><a href='/ckeeper'>Certificate Keeper</a></td></tr>\n" +
-                "             <tr><td><a href='/raiman'>RAIM Availability Notifier</a></td></tr>\n" +
-                "         </table></div>"+
-                "    </div>\n" +
-                "  </body>\n" +
-                "</html>");
+    public Mono<String> index(WebSession session) throws IOException {
+        return Mono.just(new String(Files.readAllBytes(resourceFile.getFile().toPath())));
     }
 
     /**
