@@ -16,7 +16,10 @@
 
 package org.grad.eNav.apiGateway.config;
 
+import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
+import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.security.reactive.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -37,7 +40,13 @@ class SpringSecurityConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        http.authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())
+        http.authorizeExchange(exchanges -> {
+                    exchanges.matchers(EndpointRequest.to("health", "info")).permitAll();
+                    exchanges.matchers(EndpointRequest.toAnyEndpoint().excluding(MappingsEndpoint.class)).hasRole("ACTUATOR");
+                    exchanges.matchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
+                    exchanges.pathMatchers("/login").permitAll();
+                    exchanges.anyExchange().authenticated();
+                })
                 .oauth2Login(withDefaults());
         http.csrf().disable();
         return http.build();
