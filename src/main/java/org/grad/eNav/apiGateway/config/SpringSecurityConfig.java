@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 GLA Research and Development Directorate
+ * Copyright (c) 2022 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,11 @@ import static org.springframework.security.config.Customizer.withDefaults;
 /**
  * The Web Security Configuration.
  *
+ * This is the security definition for the filter chains of the API gateway.
+ * Therefore, is it slightly different from all the other microservice. It
+ * is still required though that the actuator points are handled differently
+ * so that the spingboot admin connection works properly.
+ *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
 @EnableWebFluxSecurity
@@ -38,6 +43,13 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @ConditionalOnProperty(value = "keycloak.enabled", matchIfMissing = true)
 class SpringSecurityConfig {
 
+    /**
+     * Defines the security web-filter chains.
+     *
+     * Allows open access to the health and info actuator endpoints.
+     * All other actuator endpoints are only available for the actuator role.
+     * Finally, all other exchanges need to be authenticated.
+     */
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http.authorizeExchange(exchanges -> {
