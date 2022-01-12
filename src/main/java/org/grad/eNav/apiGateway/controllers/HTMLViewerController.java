@@ -41,7 +41,7 @@ public class HTMLViewerController {
     /**
      * The index HTML source file.
      */
-    @Value("classpath:templates/index.html")
+    @Value("classpath:/templates/index.html")
     Resource resourceFile;
 
     /**
@@ -55,7 +55,7 @@ public class HTMLViewerController {
      */
     @GetMapping("/")
     public Mono<String> index(WebSession session) throws IOException {
-        return Mono.just(new String(Files.readAllBytes(resourceFile.getFile().toPath())));
+        return Mono.just(new String(resourceFile.getInputStream().readAllBytes()));
     }
 
     /**
