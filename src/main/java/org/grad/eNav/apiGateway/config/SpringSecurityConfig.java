@@ -52,13 +52,17 @@ class SpringSecurityConfig {
      */
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        http.authorizeExchange(exchanges -> {
-                    exchanges.matchers(EndpointRequest.to("health", "info")).permitAll();
-                    exchanges.matchers(EndpointRequest.toAnyEndpoint().excluding(MappingsEndpoint.class)).hasRole("ACTUATOR");
-                    exchanges.matchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
-                    exchanges.pathMatchers("/login").permitAll();
-                    exchanges.anyExchange().authenticated();
-                })
+        http.authorizeExchange(exchanges ->
+                    exchanges.matchers(EndpointRequest.to("health", "info")).permitAll()
+                            .and().authorizeExchange()
+                            .matchers(EndpointRequest.toAnyEndpoint().excluding(MappingsEndpoint.class)).hasRole("ACTUATOR")
+                            .and().authorizeExchange()
+                            .matchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                            .and().authorizeExchange()
+                            .pathMatchers("/", "/login").permitAll()
+                            .and().authorizeExchange()
+                            .anyExchange().authenticated()
+                )
                 .oauth2Login(withDefaults());
         http.csrf().disable();
         return http.build();
