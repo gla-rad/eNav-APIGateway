@@ -17,10 +17,9 @@
 package org.grad.eNav.apiGateway.config;
 
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
-import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.security.reactive.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -65,13 +64,11 @@ class SpringSecurityConfig {
         http.authorizeExchange(exchanges ->
                     exchanges.matchers(EndpointRequest.to("health", "info")).permitAll()
                             .and().authorizeExchange()
-                            .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
-                            .and().authorizeExchange()
-                            .matchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                            .matchers(EndpointRequest.to("/actuator/**")).hasRole("ACTUATOR")
                             .and().authorizeExchange()
                             .pathMatchers("/", "/login").permitAll()
                             .and().authorizeExchange()
-                            .pathMatchers("/niord/*").permitAll()
+                            .pathMatchers(HttpMethod.GET, "/niord/**").permitAll()
                             .and().authorizeExchange()
                             .anyExchange().authenticated()
                 )
