@@ -64,7 +64,7 @@ class SpringSecurityConfig {
         http.authorizeExchange(exchanges ->
                     exchanges.matchers(EndpointRequest.to("health", "info")).permitAll()
                             .and().authorizeExchange()
-                            .matchers(EndpointRequest.toAnyEndpoint()).hasAnyRole("USER", "ACTUATOR")
+                            .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
                             .and().authorizeExchange()
                             .pathMatchers(HttpMethod.GET, "/", "/login").permitAll()
                             .and().authorizeExchange()
