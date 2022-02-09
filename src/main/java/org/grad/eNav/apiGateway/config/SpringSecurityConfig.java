@@ -70,6 +70,8 @@ class SpringSecurityConfig {
                             .and().authorizeExchange()
                             .pathMatchers(HttpMethod.GET, "/niord/**").permitAll()
                             .and().authorizeExchange()
+                            .pathMatchers(HttpMethod.GET, "/niord-quarkus/**").permitAll()
+                            .and().authorizeExchange()
                             .anyExchange().authenticated()
                 )
                 .oauth2Login(withDefaults())
