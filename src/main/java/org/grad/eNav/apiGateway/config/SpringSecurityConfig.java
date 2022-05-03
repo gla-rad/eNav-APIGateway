@@ -19,29 +19,17 @@ package org.grad.eNav.apiGateway.config;
 import org.grad.eNav.apiGateway.utils.KeycloakJwtAuthenticationConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -93,7 +81,10 @@ class SpringSecurityConfig {
                 new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository)));
         // Require authentication for all requests
         http.authorizeExchange(exchanges ->
-                    exchanges.matchers(EndpointRequest.to("health", "info")).permitAll()
+                    exchanges.matchers(EndpointRequest.to(
+                                InfoEndpoint.class,         //info endpoints
+                                HealthEndpoint.class        //health endpoints
+                            )).permitAll()
                             .and().authorizeExchange()
                             .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
                             .and().authorizeExchange()
