@@ -16,17 +16,32 @@
 
 package org.grad.eNav.apiGateway.config;
 
+import org.grad.eNav.apiGateway.utils.KeycloakJwtAuthenticationConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
+import reactor.core.publisher.Mono;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -44,6 +59,22 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableReactiveMethodSecurity
 @ConditionalOnProperty(value = "keycloak.enabled", matchIfMissing = true)
 class SpringSecurityConfig {
+
+    /**
+     * The default application name.
+     */
+    @Value("${spring.application.name:api-gateway}")
+    private String appName;
+
+    /**
+     * Specify a converter for the Keycloak authority claims.
+     *
+     * @return The Keycloak JWT Authentication Converter
+     */
+    @Bean
+    KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter() {
+        return new KeycloakJwtAuthenticationConverter(appName);
+    }
 
     /**
      * Defines the security web-filter chains.
@@ -75,9 +106,9 @@ class SpringSecurityConfig {
                             .anyExchange().authenticated()
                 )
                 .oauth2Login(withDefaults())
-                .oauth2ResourceServer().jwt();
-        // Allow showing /home within a frame
-        http.headers().frameOptions().mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
+                .oauth2ResourceServer().jwt()
+                .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter());
+
         // Disable the CSRF
         http.csrf().disable();
         return http.build();
