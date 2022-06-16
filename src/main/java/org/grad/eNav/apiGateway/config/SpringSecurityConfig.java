@@ -86,6 +86,8 @@ class SpringSecurityConfig {
                                 HealthEndpoint.class        //health endpoints
                             )).permitAll()
                             .and().authorizeExchange()
+                            .pathMatchers("/*/api/secom/**").permitAll()
+                            .and().authorizeExchange()
                             .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
                             .and().authorizeExchange()
                             .pathMatchers(HttpMethod.GET, "/", "/login").permitAll()
