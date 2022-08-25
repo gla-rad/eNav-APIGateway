@@ -41,7 +41,7 @@ public class HTMLViewerController {
     /**
      * The index HTML source file.
      */
-    @Value("classpath:/templates/index.html")
+    @Value("${api-gateway.resources.index:classpath:/templates/index.html}")
     Resource resourceFile;
 
     /**
