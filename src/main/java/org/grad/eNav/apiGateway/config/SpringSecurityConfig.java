@@ -88,7 +88,7 @@ class SpringSecurityConfig {
                             .and().authorizeExchange()
                             .pathMatchers("/*/api/secom/**").permitAll()
                             .and().authorizeExchange()
-                            .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
+                            .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR_ADMIN")
                             .and().authorizeExchange()
                             .pathMatchers(HttpMethod.GET, "/", "/login").permitAll()
                             .and().authorizeExchange()
