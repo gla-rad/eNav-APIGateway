@@ -13,7 +13,7 @@
     <groupId>org.grad</groupId>
     <artifactId>api-gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>VDESController</name>
+    <name>API-Gateway</name>
     <description>GRAD e-Navigation APi Gateway Microservice</description>
 
     <properties>
@@ -78,6 +78,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
         </dependency>
 
         <dependency>
