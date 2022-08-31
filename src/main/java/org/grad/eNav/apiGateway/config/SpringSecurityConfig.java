@@ -91,15 +91,10 @@ class SpringSecurityConfig {
                                 InfoEndpoint.class,         //info endpoints
                                 HealthEndpoint.class        //health endpoints
                             )).permitAll()
-                            .and().authorizeExchange()
                             .pathMatchers("/*/api/secom/**").permitAll()
-                            .and().authorizeExchange()
-                            .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
-                            .and().authorizeExchange()
-                            .pathMatchers(HttpMethod.GET, "/*/actuator", "/*/actuator/**").denyAll()
-                            .and().authorizeExchange()
                             .pathMatchers(HttpMethod.GET, openResources).permitAll()
-                            .and().authorizeExchange()
+                            .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
+                            .pathMatchers(HttpMethod.GET, "/*/actuator", "/*/actuator/**").denyAll()
                             .anyExchange().authenticated()
                 )
                 .oauth2Login(withDefaults())
