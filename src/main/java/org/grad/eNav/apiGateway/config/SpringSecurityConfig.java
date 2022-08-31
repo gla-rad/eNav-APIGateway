@@ -55,6 +55,12 @@ class SpringSecurityConfig {
     private String appName;
 
     /**
+     * The default application name.
+     */
+    @Value("${api-gateway.resources.open:/,/login}")
+    private String[] openResources;
+
+    /**
      * Specify a converter for the Keycloak authority claims.
      *
      * @return The Keycloak JWT Authentication Converter
@@ -90,11 +96,9 @@ class SpringSecurityConfig {
                             .and().authorizeExchange()
                             .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
                             .and().authorizeExchange()
-                            .pathMatchers(HttpMethod.GET, "/", "/login").permitAll()
+                            .pathMatchers(HttpMethod.GET, "/*/actuator", "/*/actuator/**").denyAll()
                             .and().authorizeExchange()
-                            .pathMatchers(HttpMethod.GET, "/niord/**").permitAll()
-                            .and().authorizeExchange()
-                            .pathMatchers(HttpMethod.GET, "/niord-quarkus/**").permitAll()
+                            .pathMatchers(HttpMethod.GET, openResources).permitAll()
                             .and().authorizeExchange()
                             .anyExchange().authenticated()
                 )
