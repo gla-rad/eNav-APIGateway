@@ -92,9 +92,9 @@ class SpringSecurityConfig {
                                 HealthEndpoint.class        //health endpoints
                             )).permitAll()
                             .pathMatchers("/*/api/secom/**").permitAll()
-                            .pathMatchers(HttpMethod.GET, openResources).permitAll()
+                            .pathMatchers(openResources).permitAll()
                             .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
-                            .pathMatchers(HttpMethod.GET, "/*/actuator", "/*/actuator/**").denyAll()
+                            .pathMatchers("/*/actuator", "/*/actuator/**").denyAll()
                             .anyExchange().authenticated()
                 )
                 .oauth2Login(withDefaults())
