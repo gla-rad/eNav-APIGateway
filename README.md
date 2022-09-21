@@ -49,6 +49,63 @@ will require the following *application.properties* to be provided:
     spring.security.oauth2.client.registration.keycloak.client-id=<The client name>
     spring.security.oauth2.client.registration.keycloak.client-secret=<The generated client sercet>
 
+## PKI and X.509 Certificates
+The API Gateway can also be accessed using X.509 certificates, as it is supposed
+to support SECOM. It is using the MCP PKI so all certificates should be
+generated through the MCP MIR. 
+
+The MCP MIR currently supports three levels of certificates:
+
+* Level 1: The root certificate mcp-root (which is the base for everything else)
+* Level 2: The Identity Registry certificate mcp-idreg (which is used to generate  
+  all level 3 certificates)
+* Level 3: The entity certificates (for service, devices, vessels, users, roles,
+  etc.)
+
+Therefore, the service it-self supports HTTPS (using TLS/SSL), based on a 
+service certificate provided by the MCP MIR. This is supposed to be contained
+in a keystore, with a known alias so that it can be picked up. After generating
+the certificate in the MIR (and supposing that you already have the
+public/private key pair), you can issue the following command to generate the
+keystore:
+
+    openssl pkcs12 -export -out keystore.p12 -name "api-gateway" -inkey api-gateway-private-key.pem -in api-gateway.crt
+
+This will create a *pk12* file, which for Springboot should be translated to the
+proprietary JKS format.
+
+    keytool -importkeystore -srckeystore keystore.p12 -srcstoretype PKCS12 -destkeystore keystore.jks -deststoretype JKS
+
+The configuration for these settings can be found in the *application.properties*
+file as follows:
+
+    server.ssl.enabled=true
+    server.ssl.key-store=classpath:keystore.jks
+    server.ssl.key-store-password=<keystore-password>
+    server.ssl.key-alias=<keystore-key-alias>
+    server.ssl.key-password=<keystore-key-password>
+
+Clients that want to connect using an X.509 certificate also need to acquire it
+through the MCP MIR. To avoid the complexity of adding each level 3 certificate
+separately into a trust-store, the API Gateway is provided with a trust-store
+that contains both the level 1 and 2 certificates These can be found online in
+GitHub through this
+[link](https://github.com/maritimeconnectivity/developers.maritimeconnectivity.net/tree/gh-pages/identity/prod-certificate).
+
+To include them into a single JKS trust-store, the following commands can be
+issued:
+
+    keytool -import -trustcacerts -noprompt -alias mcp-root -file mcp-root-cert.cer -keystore truststore.jks
+    keytool -import -trustcacerts -noprompt -alias mcp-idreg -file mcp-idreg-cert.cer -keystore truststore.jks
+
+Then the *application.properties* file should be configured as follows:
+
+    server.ssl.trust-store=classpath:truststore.jks
+    server.ssl.trust-store-password=<truststore-key-password>
+
+You can find a nice tutorial on all of this process
+[here](https://www.baeldung.com/x-509-authentication-in-spring-security).
+
 ## Running the Service
 To run the service, just like any other Springboot micro-service, all you need
 to do is run the main class, i.e. APIGateway. No further arguments are
