@@ -41,7 +41,7 @@ public class HTMLViewerController {
     /**
      * The index HTML source file.
      */
-    @Value("${api-gateway.resources.index:classpath:/templates/index.html}")
+    @Value("${gla.rad.api-gateway.resources.index:classpath:/templates/index.html}")
     Resource resourceFile;
 
     /**

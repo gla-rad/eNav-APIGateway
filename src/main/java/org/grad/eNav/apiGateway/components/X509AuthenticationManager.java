@@ -17,13 +17,22 @@
 package org.grad.eNav.apiGateway.components;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x500.style.IETFUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
+import javax.security.auth.x500.X500Principal;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The Custom API-Gateway X.509 Certificate Authentication Manager Component.
@@ -33,6 +42,12 @@ import java.security.cert.X509Certificate;
 @Component
 @Slf4j
 public class X509AuthenticationManager implements ReactiveAuthenticationManager {
+
+    /**
+     * The default application name.
+     */
+    @Value("${gla.rad.api-gateway.x509.organisation.mrn:}")
+    private String allowedOrganisationMrn;
 
     /**
      * The Component initialisation function.
@@ -51,7 +66,37 @@ public class X509AuthenticationManager implements ReactiveAuthenticationManager 
      */
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        authentication.setAuthenticated(((X509Certificate)authentication.getCredentials()).getSubjectX500Principal().getName().contains("O=urn:mrn:mcp:org:mcc:grad"));
+        final X500Principal x500Principal = ((X509Certificate)authentication.getCredentials()).getSubjectX500Principal();
+        final Map<ASN1ObjectIdentifier,String> x500PrincipalMap = this.parseX509Principal(x500Principal);
+
+        // If the allowed organisations are restricted, apply that to the access
+        if(Strings.isNotBlank(this.allowedOrganisationMrn)) {
+            authentication.setAuthenticated(x500PrincipalMap.get(BCStyle.O).startsWith(this.allowedOrganisationMrn));
+        }
+
+        // Return the authentication
         return Mono.just(authentication);
+    }
+
+    /**
+     * Parses the provided X.509 principal into a nicely formatted map.
+     *
+     * @param x500Principal the X.509 principal
+     * @return the generated map
+     */
+    private Map<ASN1ObjectIdentifier,String> parseX509Principal(X500Principal x500Principal) {
+        // Initialise the map
+        final Map<ASN1ObjectIdentifier, String> principalMap = new HashMap();
+
+        // Parse using X500Name
+        X500Name x500name = new X500Name(x500Principal.getName(X500Principal.RFC1779));
+        principalMap.put(BCStyle.UID, IETFUtils.valueToString(x500name.getRDNs(BCStyle.UID)[0].getFirst().getValue()));
+        principalMap.put(BCStyle.CN, IETFUtils.valueToString(x500name.getRDNs(BCStyle.CN)[0].getFirst().getValue()));
+        principalMap.put(BCStyle.O, IETFUtils.valueToString(x500name.getRDNs(BCStyle.O)[0].getFirst().getValue()));
+        principalMap.put(BCStyle.OU, IETFUtils.valueToString(x500name.getRDNs(BCStyle.OU)[0].getFirst().getValue()));
+        principalMap.put(BCStyle.C, IETFUtils.valueToString(x500name.getRDNs(BCStyle.C)[0].getFirst().getValue()));
+
+        // Return the map
+        return principalMap;
     }
 }

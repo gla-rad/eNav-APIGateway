@@ -65,7 +65,7 @@ class SpringSecurityConfig {
     /**
      * The default application name.
      */
-    @Value("${api-gateway.resources.open:/,/login}")
+    @Value("${gla.rad.api-gateway.resources.open:/,/login}")
     private String[] openResources;
 
     /**
@@ -115,7 +115,6 @@ class SpringSecurityConfig {
                                 InfoEndpoint.class,         //info endpoints
                                 HealthEndpoint.class        //health endpoints
                             )).permitAll()
-                            .pathMatchers("/*/api/secom/**").permitAll()
                             .pathMatchers(openResources).permitAll()
                             .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
                             .pathMatchers("/*/actuator", "/*/actuator/**").denyAll()
