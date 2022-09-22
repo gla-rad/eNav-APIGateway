@@ -17,6 +17,7 @@
 package org.grad.eNav.apiGateway.config;
 
 import org.grad.eNav.apiGateway.components.X509AuthenticationManager;
+import org.grad.eNav.apiGateway.components.X509PrincipalExtractor;
 import org.grad.eNav.apiGateway.utils.KeycloakJwtAuthenticationConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,19 +26,12 @@ import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
-import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.security.cert.X509Certificate;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
