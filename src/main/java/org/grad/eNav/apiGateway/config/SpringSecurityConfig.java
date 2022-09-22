@@ -16,6 +16,7 @@
 
 package org.grad.eNav.apiGateway.config;
 
+import org.grad.eNav.apiGateway.components.ForwardedX509HeadersFilter;
 import org.grad.eNav.apiGateway.components.X509AuthenticationManager;
 import org.grad.eNav.apiGateway.components.X509PrincipalExtractor;
 import org.grad.eNav.apiGateway.utils.KeycloakJwtAuthenticationConverter;
@@ -28,6 +29,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -117,6 +119,9 @@ class SpringSecurityConfig {
                 .oauth2Login(withDefaults())
                 .oauth2ResourceServer().jwt()
                 .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter());
+
+        // Add an authentication filter to handle forwarded requests
+        http.addFilterAt(new ForwardedX509HeadersFilter(x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
 
         // Disable the CSRF
         http.csrf().disable();

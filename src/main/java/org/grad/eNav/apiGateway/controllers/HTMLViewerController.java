@@ -69,10 +69,7 @@ public class HTMLViewerController {
      * @return the JWT token of the authorized client
      */
     @GetMapping(value = "/token")
-    public Mono<String> getHome(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient, @RequestHeader Map<String, String> headers) {
-        headers.forEach((key, value) -> {
-            log.info(String.format("Header '%s' = %s", key, value));
-        });
+    public Mono<String> getHome(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
         return Mono.just(authorizedClient.getAccessToken().getTokenValue());
     }
 
