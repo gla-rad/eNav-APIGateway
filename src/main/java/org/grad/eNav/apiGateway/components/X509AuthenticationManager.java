@@ -44,7 +44,7 @@ import java.util.Map;
 public class X509AuthenticationManager implements ReactiveAuthenticationManager {
 
     /**
-     * The default application name.
+     * The allowed organisation MRNs.
      */
     @Value("${gla.rad.api-gateway.x509.organisation.mrn:}")
     private String allowedOrganisationMrn;
@@ -84,7 +84,7 @@ public class X509AuthenticationManager implements ReactiveAuthenticationManager 
      * @param x500Principal the X.509 principal
      * @return the generated map
      */
-    private Map<ASN1ObjectIdentifier,String> parseX509Principal(X500Principal x500Principal) {
+    Map<ASN1ObjectIdentifier,String> parseX509Principal(X500Principal x500Principal) {
         // Initialise the map
         final Map<ASN1ObjectIdentifier, String> principalMap = new HashMap();
 

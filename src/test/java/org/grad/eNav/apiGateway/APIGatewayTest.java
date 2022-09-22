@@ -23,7 +23,6 @@ import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ActiveProfiles("test")
 @SpringBootTest
 @TestPropertySource("classpath:application.properties")
 class APIGatewayTest {
