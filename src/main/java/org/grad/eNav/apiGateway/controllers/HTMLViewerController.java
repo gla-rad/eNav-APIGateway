@@ -16,17 +16,20 @@
 
 package org.grad.eNav.apiGateway.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Map;
 
 /**
  * The Home Viewer Controller.
@@ -36,6 +39,7 @@ import java.nio.file.Files;
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
 @RestController
+@Slf4j
 public class HTMLViewerController {
 
     /**
@@ -65,7 +69,10 @@ public class HTMLViewerController {
      * @return the JWT token of the authorized client
      */
     @GetMapping(value = "/token")
-    public Mono<String> getHome(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
+    public Mono<String> getHome(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient, @RequestHeader Map<String, String> headers) {
+        headers.forEach((key, value) -> {
+            log.info(String.format("Header '%s' = %s", key, value));
+        });
         return Mono.just(authorizedClient.getAccessToken().getTokenValue());
     }
 
