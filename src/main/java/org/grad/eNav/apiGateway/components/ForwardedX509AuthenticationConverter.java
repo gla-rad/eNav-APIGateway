@@ -17,6 +17,10 @@
 package org.grad.eNav.apiGateway.components;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x500.style.IETFUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -24,6 +28,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.ByteArrayInputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -45,9 +50,7 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
     /**
      * The Forwarded SSL headers.
      */
-    public static String X_SSL_VERIFY_HEADER = "X-SSL-Verify";
     public static String X_SSL_CERT_HEADER = "X-SSL-CERT";
-    public static String X_SSL_SDN_HEADER = "X-SSL-SDN";
 
     /**
      * This is the actual function that performs the authentication token
@@ -61,17 +64,20 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
         try {
-            // Extract the certificate
-            CertificateFactory fact = CertificateFactory.getInstance("X.509");
-            String decodedPem = URLDecoder.decode(request.getHeaders().getFirst(X_SSL_CERT_HEADER), StandardCharsets.UTF_8.toString());
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedPem.getBytes());
-            X509Certificate certificate = (X509Certificate) fact.generateCertificate(inputStream);
+            // Extract the certificate and it's OU principal
+            final CertificateFactory fact = CertificateFactory.getInstance("X.509");
+            final HttpHeaders httpHeaders = request.getHeaders();
+            final String decodedPem = URLDecoder.decode(httpHeaders.getFirst(X_SSL_CERT_HEADER), StandardCharsets.UTF_8);
+            final ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedPem.getBytes());
+            final X509Certificate certificate = (X509Certificate) fact.generateCertificate(inputStream);
+            final X500Name x500name = new X500Name(certificate.getSubjectX500Principal().getName(X500Principal.RFC1779));
+            final String principal = IETFUtils.valueToString(x500name.getRDNs(BCStyle.OU)[0].getFirst());
 
-            // extract credentials here
-            Authentication authentication =  new PreAuthenticatedAuthenticationToken("service", certificate);
+            // Finally assign the new authentication token to be used
+            Authentication authentication =  new PreAuthenticatedAuthenticationToken(principal, certificate);
             return Mono.just(authentication);
-        } catch (Exception e) {
-            // log error here
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
             return Mono.empty();
         }
     }

@@ -22,6 +22,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 
+import java.util.Objects;
+
 /**
  * The Forwarded X.509 Headers Filter
  *
@@ -62,6 +64,7 @@ public class ForwardedX509HeadersFilter extends AuthenticationWebFilter {
 
             // Decide on whether to apply the filter
             return request.getHeaders().containsKey(X_SSL_VERIFY_HEADER)
+                    && Objects.equals(request.getHeaders().getFirst(X_SSL_VERIFY_HEADER), "SUCCESS")
                     && request.getHeaders().containsKey(X_SSL_CERT_HEADER)
                     && request.getHeaders().containsKey(X_SSL_SDN_HEADER)
                     ? ServerWebExchangeMatcher.MatchResult.match()
