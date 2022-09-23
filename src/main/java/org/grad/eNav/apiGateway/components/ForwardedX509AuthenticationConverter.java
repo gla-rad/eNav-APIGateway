@@ -34,6 +34,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Objects;
 
 /**
  * The Forwarded X.509 Authentication Converter.
@@ -64,9 +65,16 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
         try {
-            // Extract the certificate and it's OU principal
+            // Initialise the local variables
             final CertificateFactory fact = CertificateFactory.getInstance("X.509");
             final HttpHeaders httpHeaders = request.getHeaders();
+
+            // Check if there is a certificate in the headers being forwarded
+            if(!httpHeaders.containsKey(X_SSL_CERT_HEADER) || Objects.isNull(httpHeaders.getFirst(X_SSL_CERT_HEADER))) {
+                return Mono.empty();
+            }
+
+            // Extract the certificate and it's OU principal
             final String decodedPem = URLDecoder.decode(httpHeaders.getFirst(X_SSL_CERT_HEADER), StandardCharsets.UTF_8);
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedPem.getBytes());
             final X509Certificate certificate = (X509Certificate) fact.generateCertificate(inputStream);
