@@ -40,6 +40,7 @@ public class ForwardedX509HeadersFilter extends AuthenticationWebFilter {
      */
     public static String X_SSL_FORWARDED_HEADER = "X-SSL-Forwarded";
     public static String X_SSL_VERIFY_HEADER = "X-SSL-Verify";
+    public static String X_SSL_CERT_HEADER = "X-SSL-CERT";
 
     /**
      * Implements the filter's functionality where the exchange request is
@@ -62,6 +63,7 @@ public class ForwardedX509HeadersFilter extends AuthenticationWebFilter {
             // Decide on whether to apply the filter
             return request.getHeaders().containsKey(X_SSL_FORWARDED_HEADER)
                     && request.getHeaders().containsKey(X_SSL_VERIFY_HEADER)
+                    && request.getHeaders().containsKey(X_SSL_CERT_HEADER)
                     ? ServerWebExchangeMatcher.MatchResult.match()
                     : ServerWebExchangeMatcher.MatchResult.notMatch();
         });
