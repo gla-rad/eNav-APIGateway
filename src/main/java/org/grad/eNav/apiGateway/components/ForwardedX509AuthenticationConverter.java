@@ -56,7 +56,7 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
         ServerHttpRequest request = exchange.getRequest();
         try {
             // extract credentials here
-            Authentication authentication =  new PreAuthenticatedAuthenticationToken("service", request.getHeaders().containsKey(X_SSL_SDN_HEADER));
+            Authentication authentication =  new PreAuthenticatedAuthenticationToken("service", request.getHeaders().getFirst(X_SSL_SDN_HEADER));
             return Mono.just(authentication);
         } catch (Exception e) {
             // log error here
