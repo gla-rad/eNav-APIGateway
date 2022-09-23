@@ -71,7 +71,7 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
 
             // Check if there is a certificate in the headers being forwarded
             if(!httpHeaders.containsKey(X_SSL_CERT_HEADER) || Objects.isNull(httpHeaders.getFirst(X_SSL_CERT_HEADER))) {
-                return Mono.empty();
+                return Mono.just(new PreAuthenticatedAuthenticationToken("unauthorised", "unauthorised"));
             }
 
             // Extract the certificate and it's OU principal
