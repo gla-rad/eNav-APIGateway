@@ -27,20 +27,4 @@ import org.springframework.context.annotation.Bean;
 @TestConfiguration
 public class TestingConfiguration {
 
-    /**
-     * Provide an X.509 Authentication Manager Bean if required.
-     */
-    @Bean
-    public X509AuthenticationManager x509AuthenticationManager() {
-        return new X509AuthenticationManager();
-    }
-
-    /**
-     * Provide an X.509 Principal Extractor Bean if required.
-     */
-    @Bean
-    public X509PrincipalExtractor x509PrincipalExtractor() {
-        return new X509PrincipalExtractor();
-    }
-
 }
