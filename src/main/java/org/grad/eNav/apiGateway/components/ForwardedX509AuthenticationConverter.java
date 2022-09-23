@@ -24,6 +24,12 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.io.ByteArrayInputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
 /**
  * The Forwarded X.509 Authentication Converter.
  *
@@ -55,8 +61,14 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
         try {
+            // Extract the certificate
+            CertificateFactory fact = CertificateFactory.getInstance("X.509");
+            String decodedPem = URLDecoder.decode(request.getHeaders().getFirst(X_SSL_CERT_HEADER), StandardCharsets.UTF_8.toString());
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedPem.getBytes());
+            X509Certificate certificate = (X509Certificate) fact.generateCertificate(inputStream);
+
             // extract credentials here
-            Authentication authentication =  new PreAuthenticatedAuthenticationToken("service", request.getHeaders().getFirst(X_SSL_SDN_HEADER));
+            Authentication authentication =  new PreAuthenticatedAuthenticationToken("service", certificate);
             return Mono.just(authentication);
         } catch (Exception e) {
             // log error here
