@@ -121,7 +121,7 @@ class SpringSecurityConfig {
                 .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter());
 
         // Add the forwarded X.509 certificate authentication suports
-        http.addFilterBefore(new ForwardedX509HeadersFilter(this.x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
+        http.addFilterAt(new ForwardedX509HeadersFilter(this.x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
 
         // Disable the CSRF
         http.csrf().disable();
