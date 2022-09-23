@@ -102,11 +102,11 @@ public class ForwardedX509HeadersFilter extends AuthenticationWebFilter {
             ServerHttpRequest req = exchange.getRequest();
 
             // If not using SSL then continue as usual
-            if(Objects.nonNull(req.getSslInfo()) && Arrays.isNullOrEmpty(req.getSslInfo().getPeerCertificates())) {
+            if(Objects.isNull(req.getSslInfo()) || Arrays.isNullOrEmpty(req.getSslInfo().getPeerCertificates())) {
                 return ServerWebExchangeMatcher.MatchResult.match();
             }
 
-            // If not forwarded then continue as usual
+            // If verification not forwarded then continue as usual
             if(!req.getHeaders().containsKey(X_SSL_FORWARDED_HEADER)) {
                 return ServerWebExchangeMatcher.MatchResult.match();
             }
