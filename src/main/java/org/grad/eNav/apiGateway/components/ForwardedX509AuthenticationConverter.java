@@ -82,7 +82,7 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
             final String principal = IETFUtils.valueToString(x500name.getRDNs(BCStyle.OU)[0].getFirst());
 
             // Finally assign the new authentication token to be used
-            Authentication authentication =  new PreAuthenticatedAuthenticationToken(principal, certificate);
+            final Authentication authentication =  new PreAuthenticatedAuthenticationToken(principal, certificate);
             return Mono.just(authentication);
         } catch (Exception ex) {
             log.error(ex.getMessage());

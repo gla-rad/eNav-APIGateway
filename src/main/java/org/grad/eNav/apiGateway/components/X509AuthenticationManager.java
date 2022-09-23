@@ -33,6 +33,7 @@ import javax.security.auth.x500.X500Principal;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The Custom API-Gateway X.509 Certificate Authentication Manager Component.
@@ -66,12 +67,18 @@ public class X509AuthenticationManager implements ReactiveAuthenticationManager 
      */
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        final X500Principal x500Principal = ((X509Certificate)authentication.getCredentials()).getSubjectX500Principal();
-        final Map<ASN1ObjectIdentifier,String> x500PrincipalMap = this.parseX509Principal(x500Principal);
+        // Make sure we have what appears to be valid authentication credentials
+        if(Objects.nonNull(authentication.getCredentials()) && (authentication.getCredentials() instanceof X509Certificate)) {
+            // Retrieve the principles from the authorisation credentials
+            final X500Principal x500Principal = ((X509Certificate)authentication.getCredentials()).getSubjectX500Principal();
+            final Map<ASN1ObjectIdentifier,String> x500PrincipalMap = this.parseX509Principal(x500Principal);
 
-        // If the allowed organisations are restricted, apply that to the access
-        if(Strings.isNotBlank(this.allowedOrganisationMrn)) {
-            authentication.setAuthenticated(x500PrincipalMap.get(BCStyle.O).startsWith(this.allowedOrganisationMrn));
+            // If the allowed organisations are restricted, apply that to the access
+            if(Strings.isNotBlank(this.allowedOrganisationMrn)) {
+                authentication.setAuthenticated(x500PrincipalMap.get(BCStyle.O).startsWith(this.allowedOrganisationMrn));
+            }
+        } else {
+            authentication.setAuthenticated(false);
         }
 
         // Return the authentication

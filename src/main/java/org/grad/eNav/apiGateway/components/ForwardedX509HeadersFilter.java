@@ -22,8 +22,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 
-import java.util.Objects;
-
 /**
  * The Forwarded X.509 Headers Filter
  *
