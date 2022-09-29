@@ -95,8 +95,9 @@ GitHub through this
 To include them into a single JKS trust-store, the following commands can be
 issued:
 
-    keytool -import -trustcacerts -noprompt -alias mcp-root -file mcp-root-cert.cer -keystore truststore.jks
-    keytool -import -trustcacerts -noprompt -alias mcp-idreg -file mcp-idreg-cert.cer -keystore truststore.jks
+    keytool -import -trustcacerts -noprompt -alias mcp-root -file mcp-root-cert.cer -keystore truststore.p12
+    keytool -import -trustcacerts -noprompt -alias mcp-idreg -file mcp-idreg-cert.cer -keystore truststore.p12
+    keytool -importkeystore -srckeystore truststore.p12 -srcstoretype PKCS12 -destkeystore truststore.jks -deststoretype JKS
 
 Then the *application.properties* file should be configured as follows:
 
