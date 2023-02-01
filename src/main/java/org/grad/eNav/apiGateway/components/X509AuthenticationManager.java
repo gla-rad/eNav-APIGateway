@@ -28,7 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.security.auth.x500.X500Principal;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
