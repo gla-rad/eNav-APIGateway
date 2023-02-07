@@ -19,7 +19,8 @@ package org.grad.eNav.apiGateway.config;
 import org.grad.eNav.apiGateway.components.ForwardedX509HeadersFilter;
 import org.grad.eNav.apiGateway.components.X509AuthenticationManager;
 import org.grad.eNav.apiGateway.components.X509PrincipalExtractor;
-import org.grad.eNav.apiGateway.utils.KeycloakJwtAuthenticationConverter;
+import org.grad.eNav.apiGateway.config.keycloak.KeycloakGrantedAuthoritiesMapper;
+import org.grad.eNav.apiGateway.config.keycloak.KeycloakJwtAuthenticationConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
@@ -31,6 +32,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -87,6 +89,16 @@ class SpringSecurityConfig {
     }
 
     /**
+     * Specify a mapper for the keycloak authority claims.
+     *
+     * @return the Keycloak Granted Authority Mapper
+     */
+    @Bean
+    protected GrantedAuthoritiesMapper keycloakGrantedAuthoritiesMapper() {
+        return new KeycloakGrantedAuthoritiesMapper(this.appName);
+    }
+
+    /**
      * Defines the security web-filter chains.
      *
      * Allows open access to the health and info actuator endpoints.
@@ -99,8 +111,8 @@ class SpringSecurityConfig {
         // Authenticate through configured OpenID Provider
         http.oauth2Login();
         // Also, logout at the OpenID Connect provider
-        http.logout(logout -> logout.logoutSuccessHandler(
-                new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository)));
+        http.logout()
+                .logoutSuccessHandler(new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository));
         // Require authentication for all requests
         http.x509()
                 .principalExtractor(this.x509PrincipalExtractor)
@@ -113,14 +125,17 @@ class SpringSecurityConfig {
                             )).permitAll()
                             .pathMatchers(openResources).permitAll()
                             .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
-                            .pathMatchers("/*/actuator", "/*/actuator/**").denyAll()
+                            .pathMatchers(
+                                    "/*/actuator",
+                                    "/*/actuator/**"
+                            ).denyAll()
                             .anyExchange().authenticated()
                 )
                 .oauth2Login(withDefaults())
                 .oauth2ResourceServer().jwt()
                 .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter());
 
-        // Add the forwarded X.509 certificate authentication suports
+        // Add the forwarded X.509 certificate authentication support
         http.addFilterAt(new ForwardedX509HeadersFilter(this.x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
 
         // Disable the CSRF

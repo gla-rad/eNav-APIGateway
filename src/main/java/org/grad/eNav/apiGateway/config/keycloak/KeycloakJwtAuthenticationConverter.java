@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.grad.eNav.apiGateway.utils;
+package org.grad.eNav.apiGateway.config.keycloak;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
