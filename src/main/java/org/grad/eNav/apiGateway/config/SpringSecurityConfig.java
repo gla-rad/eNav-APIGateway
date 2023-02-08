@@ -21,6 +21,7 @@ import org.grad.eNav.apiGateway.components.X509AuthenticationManager;
 import org.grad.eNav.apiGateway.components.X509PrincipalExtractor;
 import org.grad.eNav.apiGateway.config.keycloak.KeycloakGrantedAuthoritiesMapper;
 import org.grad.eNav.apiGateway.config.keycloak.KeycloakJwtAuthenticationConverter;
+import org.grad.eNav.apiGateway.config.keycloak.KeycloakLogoutHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
@@ -28,16 +29,18 @@ import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-
-import static org.springframework.security.config.Customizer.withDefaults;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * The Web Security Configuration.
@@ -49,6 +52,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
+@Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 @ConditionalOnProperty(value = "keycloak.enabled", matchIfMissing = true)
@@ -79,6 +83,16 @@ class SpringSecurityConfig {
     X509AuthenticationManager x509AuthenticationManager;
 
     /**
+     * The REST Template.
+     *
+     * @return the REST template
+     */
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    /**
      * Specify a converter for the Keycloak authority claims.
      *
      * @return The Keycloak JWT Authentication Converter
@@ -99,6 +113,28 @@ class SpringSecurityConfig {
     }
 
     /**
+     * Define a logout handler for handling Keycloak logouts.
+     *
+     * @param restTemplate the REST template
+     * @return the Keycloak logout handler
+     */
+    @Bean
+    protected KeycloakLogoutHandler keycloakLogoutHandler(RestTemplate restTemplate) {
+        return new KeycloakLogoutHandler(restTemplate);
+    }
+
+    /**
+     * Define the session authentication strategy which uses a simple session
+     * registry to store our current sessions.
+     *
+     * @return the session authentication strategy
+     */
+    @Bean
+    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
+    }
+
+    /**
      * Defines the security web-filter chains.
      *
      * Allows open access to the health and info actuator endpoints.
@@ -107,12 +143,14 @@ class SpringSecurityConfig {
      */
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
-                                                            ReactiveClientRegistrationRepository clientRegistrationRepository) {
+                                                            ReactiveClientRegistrationRepository clientRegistrationRepository,
+                                                            RestTemplate restTemplate) {
         // Authenticate through configured OpenID Provider
         http.oauth2Login();
         // Also, logout at the OpenID Connect provider
         http.logout()
-                .logoutSuccessHandler(new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository));
+                .logoutHandler(keycloakLogoutHandler(restTemplate));
+//                .logoutSuccessHandler(new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository));
         // Require authentication for all requests
         http.x509()
                 .principalExtractor(this.x509PrincipalExtractor)
@@ -131,7 +169,6 @@ class SpringSecurityConfig {
                             ).denyAll()
                             .anyExchange().authenticated()
                 )
-                .oauth2Login(withDefaults())
                 .oauth2ResourceServer().jwt()
                 .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter());
 
