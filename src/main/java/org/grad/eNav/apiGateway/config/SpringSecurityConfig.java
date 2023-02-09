@@ -61,8 +61,8 @@ class SpringSecurityConfig {
     /**
      * The default application name.
      */
-    @Value("${spring.application.name:api-gateway}")
-    private String appName;
+    @Value("${keycloak.clientId:api-gateway}")
+    private String clientId;
 
     /**
      * The default application name.
@@ -99,7 +99,7 @@ class SpringSecurityConfig {
      */
     @Bean
     KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter() {
-        return new KeycloakJwtAuthenticationConverter(appName);
+        return new KeycloakJwtAuthenticationConverter(this.clientId);
     }
 
     /**
@@ -109,7 +109,7 @@ class SpringSecurityConfig {
      */
     @Bean
     protected GrantedAuthoritiesMapper keycloakGrantedAuthoritiesMapper() {
-        return new KeycloakGrantedAuthoritiesMapper(this.appName);
+        return new KeycloakGrantedAuthoritiesMapper(this.clientId);
     }
 
     /**
