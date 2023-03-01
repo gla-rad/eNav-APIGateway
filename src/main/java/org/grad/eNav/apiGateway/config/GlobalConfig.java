@@ -22,6 +22,9 @@ import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeReposi
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
 
 /**
  * The Global Configuration.
@@ -51,6 +54,17 @@ public class GlobalConfig {
     @Bean
     public HttpExchangeRepository httpTraceRepository() {
         return new InMemoryHttpExchangeRepository();
+    }
+
+    /**
+     * Add a pool of static resources to server the favicon and other required
+     * images, files etc.
+     *
+     * @return the static router function handling
+     */
+    @Bean
+    RouterFunction staticResourceLocator(){
+        return RouterFunctions.resources("/static/**", new ClassPathResource("static/"));
     }
 
 }
