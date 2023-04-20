@@ -70,36 +70,40 @@ public class X509ClientCertificateFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getCredentials)
-                .flatMap(credentials -> {
-                    // If we have an SSL certificate put extra info in the headers for the clients
-                    if (credentials instanceof X509Certificate) {
-                        final X509Certificate clientX509Certificate = (X509Certificate) credentials;
-                        final X500Name x500Name = new X500Name(clientX509Certificate.getSubjectX500Principal()
-                                .getName(X500Principal.RFC2253));
-                        final String mrn = Arrays.stream(x500Name.getRDNs(new ASN1ObjectIdentifier(ANS10_MRN_OBJECT_IDENTIFIER)))
-                                .map(RDN::getFirst)
-                                .map(AttributeTypeAndValue::getValue)
-                                .map(IETFUtils::valueToString)
-                                .findFirst()
-                                .orElse(null);
-                        final String encodedClientX509Certificate = Optional.of(clientX509Certificate)
-                                .map(c -> {
-                                    try { return c.getEncoded(); }
-                                    catch (CertificateEncodingException ex) { return null; }
-                                })
-                                .map(Base64.getEncoder()::encodeToString)
-                                .orElse(null);
+                .doOnNext(context -> {
+                    // Try to get the current authentication credentials
+                    Optional.of(context)
+                            .map(SecurityContext::getAuthentication)
+                            .map(Authentication::getCredentials)
+                            .filter(X509Certificate.class::isInstance)
+                            .ifPresent(credentials -> {
+                                final X509Certificate clientX509Certificate = (X509Certificate) credentials;
+                                final X500Name x500Name = new X500Name(clientX509Certificate.getSubjectX500Principal()
+                                        .getName(X500Principal.RFC2253));
+                                final String mrn = Arrays.stream(x500Name.getRDNs(new ASN1ObjectIdentifier(ANS10_MRN_OBJECT_IDENTIFIER)))
+                                        .map(RDN::getFirst)
+                                        .map(AttributeTypeAndValue::getValue)
+                                        .map(IETFUtils::valueToString)
+                                        .findFirst()
+                                        .orElse(null);
+                                final String encodedClientX509Certificate = Optional.of(clientX509Certificate)
+                                        .map(c -> {
+                                            try {
+                                                return c.getEncoded();
+                                            } catch (CertificateEncodingException ex) {
+                                                return null;
+                                            }
+                                        })
+                                        .map(Base64.getEncoder()::encodeToString)
+                                        .orElse(null);
 
-                        // Append to the request headers
-                        exchange.getRequest().mutate()
-                                .header(MRN_HEADER, mrn)
-                                .header(CERT_HEADER, encodedClientX509Certificate);
-                    }
-                    // And continue the filter chain
-                    return chain.filter(exchange);
-                });
+                                // Append to the request headers
+                                exchange.getRequest().mutate()
+                                        .header(MRN_HEADER, mrn)
+                                        .header(CERT_HEADER, encodedClientX509Certificate);
+                            });
+                })
+                .then(chain.filter(exchange));
     }
 
 }
