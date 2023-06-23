@@ -18,6 +18,7 @@ package org.grad.eNav.apiGateway.config;
 
 import org.grad.eNav.apiGateway.components.ForwardedX509HeadersFilter;
 import org.grad.eNav.apiGateway.components.X509AuthenticationManager;
+import org.grad.eNav.apiGateway.components.X509ClientCertificateFilter;
 import org.grad.eNav.apiGateway.components.X509PrincipalExtractor;
 import org.grad.eNav.apiGateway.config.keycloak.KeycloakGrantedAuthoritiesMapper;
 import org.grad.eNav.apiGateway.config.keycloak.KeycloakJwtAuthenticationConverter;
@@ -174,6 +175,7 @@ class SpringSecurityConfig {
 
         // Add the forwarded X.509 certificate authentication support
         http.addFilterAt(new ForwardedX509HeadersFilter(this.x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
+        http.addFilterAfter(new X509ClientCertificateFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
 
         // Disable the CSRF
         http.csrf().disable();
