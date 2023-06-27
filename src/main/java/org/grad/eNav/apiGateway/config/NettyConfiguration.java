@@ -32,12 +32,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class NettyConfiguration implements WebServerFactoryCustomizer<NettyReactiveWebServerFactory> {
 
+    /**
+     * The Maximum HTTP Header Size.
+     */
     @Value("${server.max-http-header-size:65536}")
     private int maxHttpHeaderSize;
+
+    /**
+     * The Maximum Initial Line Length.
+     */
     @Value("${server.max-initial-line-length:65536}")
     private int maxInitialLingLength;
 
-    @Value("${server.h2c-max-content-length:10000000}")
+    /**
+     * The Maximum HTTP Request Upgrade Content Length.
+     */
+    @Value("${server.h2c-max-content-length:1000000}")
     private int h2cMaxContentLength;
 
     public void customize(NettyReactiveWebServerFactory container) {
