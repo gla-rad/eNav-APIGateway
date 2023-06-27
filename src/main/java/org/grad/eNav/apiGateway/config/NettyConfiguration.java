@@ -22,7 +22,7 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * The Global Configuration.
+ * The Netty Configuration.
  *
  * A class to customize the netty configuration and allow larger web-socket
  * content sizes.
