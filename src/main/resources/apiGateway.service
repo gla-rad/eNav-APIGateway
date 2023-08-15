@@ -1,8 +1,9 @@
 [Unit]
 Description=e-Navigation API Gateway Service
-After=syslog.target
+After=syslog.target docker.service
 
 [Service]
+ExecStartPre=/bin/sleep 15
 ExecStart=/opt/e-nav/apiGateway/apiGateway.jar
 
 [Install]
