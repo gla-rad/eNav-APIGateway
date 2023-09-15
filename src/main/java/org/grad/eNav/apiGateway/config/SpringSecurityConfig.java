@@ -32,15 +32,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -147,38 +150,46 @@ class SpringSecurityConfig {
                                                             ReactiveClientRegistrationRepository clientRegistrationRepository,
                                                             RestTemplate restTemplate) {
         // Authenticate through configured OpenID Provider
-        http.oauth2Login();
+        http.oauth2Login(oauth2 -> oauth2
+                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"))
+        );
         // Also, logout at the OpenID Connect provider
-        http.logout()
-                .logoutHandler(keycloakLogoutHandler(restTemplate));
-//                .logoutSuccessHandler(new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository));
+        http.logout(logout -> logout
+                .logoutHandler(keycloakLogoutHandler(restTemplate))
+//                .logoutSuccessHandler(new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository))
+        );
         // Require authentication for all requests
-        http.x509()
-                .principalExtractor(this.x509PrincipalExtractor)
-                .authenticationManager(this.x509AuthenticationManager)
-                .and()
-                .authorizeExchange(exchanges ->
-                    exchanges.matchers(EndpointRequest.to(
-                                InfoEndpoint.class,         //info endpoints
-                                HealthEndpoint.class        //health endpoints
-                            )).permitAll()
-                            .pathMatchers(openResources).permitAll()
-                            .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
-                            .pathMatchers(
-                                    "/*/actuator",
-                                    "/*/actuator/**"
-                            ).denyAll()
-                            .anyExchange().authenticated()
-                )
-                .oauth2ResourceServer().jwt()
-                .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter());
+        http.x509( x509 -> x509
+                    .principalExtractor(this.x509PrincipalExtractor)
+                    .authenticationManager(this.x509AuthenticationManager)
+             )
+            .authorizeExchange(exchanges -> exchanges
+                    .matchers(EndpointRequest.to(
+                        InfoEndpoint.class,         //info endpoints
+                        HealthEndpoint.class        //health endpoints
+                    )).permitAll()
+                    .pathMatchers(openResources).permitAll()
+                    .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
+                    .pathMatchers(
+                            "/*/actuator",
+                            "/*/actuator/**"
+                    ).denyAll()
+                    .anyExchange().authenticated()
+            )
+            .oauth2ResourceServer(oauth2Rs -> oauth2Rs
+                    .jwt( jwt -> jwt
+                            .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter())
+                    )
+            );
 
         // Add the forwarded X.509 certificate authentication support
         http.addFilterAt(new ForwardedX509HeadersFilter(this.x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
         http.addFilterAfter(new X509ClientCertificateFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
 
         // Disable the CSRF
-        http.csrf().disable();
+        http.csrf(ServerHttpSecurity.CsrfSpec::disable);
+
+        // Build and return
         return http.build();
     }
 
