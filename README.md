@@ -1,17 +1,17 @@
 # e-Navigation API Gateway Service
-The API Gateway repository contains the implementation of a service
-that act as a single gateway for the GRAD e-Navigation architecture. This
-entails multiple advantages, such as the fact that the involved microservices 
-operate inside a more protected environment, as well as operational flexibility
-like the option for horizontal scaling. The core micro-service is built using 
-the Springboot framework.
+The API Gateway repository contains the implementation of a service that acts
+as a single gateway for the GRAD e-Navigation Service Architecture. This entails
+multiple advantages, such as the fact that the involved microservices  operate
+inside a more protected environment, as well as operational flexibility like the
+option for horizontal scaling. The core micro-service is built using the
+Springboot framework.
 
 ## Development Setup
 To start developing just open the repository with the IDE of your choice. The
 original code has been generated using
 [Intellij IDEA](https://www.jetbrains.com/idea). Just open it by going to:
 
-    File -> New -> Project From Verson Control
+    File -> New -> Project From Version Control
 
 Provide the URL of the current repository and the local directory you want.
 
@@ -136,8 +136,8 @@ discuss what you would like to change.
 Please make sure to update tests as appropriate.
 
 ## License
-Distributed under the Apache License. See [LICENSE](./LICENSE) for more
-information.
+Distributed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for
+more information.
 
 ## Contact
 Nikolaos Vastardis - Nikolaos.Vastardis@gla-rad.org
