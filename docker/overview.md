@@ -86,8 +86,8 @@ HTTP/HTTPS sessions if necessary.
 
 This image can be used in two ways (based on the use or not of the Spring Cloud
 Config server). 
-* Enabling the cloud config client and using the configurations located in an
-* online repository.
+* Enabling the cloud config client and using the configurations located in an 
+online repository.
 * Disabling the cloud config client and using the configuration provided
 locally.
 
