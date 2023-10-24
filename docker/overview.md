@@ -61,11 +61,11 @@ provision of the future GLA e-Navigation services.
 As a concept, the CSSA is based on the Service Oriented Architecture (SOA). A
 pure-SOA approach however was found to be a bit cumbersome for the GLA
 operations, as it usually requires the entire IT landscape being compatible,
-resulting in high investment costs [6]. In the context of e-Navigation, this
-could become a serious problem, since different components of the system are
-designed by independent teams/manufacturers. Instead, a more flexible
-microservice architecture was opted for. This is based on a break-down of the
-larger functional blocks into small independent services, each responsible for
+resulting in high investment costs. In the context of e-Navigation, this could
+become a serious problem, since different components of the system are designed
+by independent teams/manufacturers. Instead, a more flexible microservice
+architecture was opted for. This is based on a break-down of the larger
+functional blocks into small independent services, each responsible for
 performing its own orchestration, maintaining its own data and communicating
 through lightweight mechanisms such as HTTP/HTTPS. It should be pointed out that
 SOA and the microservice architecture are not necessarily that different.
@@ -111,7 +111,8 @@ The parameters will be picked up and used to populate the default
 
     server.port=8760
     spring.application.name=api-gateway
-    
+    spring.application.version=<application.version>
+
     # The Spring Cloud Discovery Config
     spring.cloud.config.uri=${ENAV_CLOUD_CONFIG_URI}
     spring.cloud.config.username=${ENAV_CLOUD_CONFIG_USERNAME}
@@ -125,8 +126,8 @@ when running.
 To run the image, along with the aforementioned environment variables, you can
 use the following command:
 
-    docker run -t -i --rm\
-        -p 8760:8760\
+    docker run -t -i --rm \
+        -p 8760:8760 \
         -e ENAV_CLOUD_CONFIG_URI='<cloud config server url>' \
         -e ENAV_CLOUD_CONFIG_BRANCH='<cloud config config repository branch>' \
         -e ENAV_CLOUD_CONFIG_USERNAME='<config config repository username>' \
@@ -154,6 +155,7 @@ environment variable inputs:
     
     server.port=8760
     spring.application.name=api-gateway
+    spring.application.version=<application.version>
     
     # Disable the cloud config
     spring.cloud.config.enabled=false
@@ -165,8 +167,21 @@ environment variable inputs:
     spring.cloud.config.label=
 
 While the application properties need to provide the service with an OAuth2.0
-server like keycloak:
+server like keycloak, logging configuration, the eureka client connection etc.:
 
+    # Configuration Variables
+    service.variable.hostname=<service.hostname>
+    service.variable.eureka.server.name=<eureka.server.name>
+    service.variable.eureka.server.port=<eureka.server.port>
+    service.variable.keycloak.server.name=<keycloak.server.name>
+    service.variable.keycloak.server.port=<keycloak.server.port>
+    service.variable.keycloak.server.realm=<keycloak.realm>
+    
+    # Logging Configuration
+    logging.file.name=/var/log/${spring.application.name}.log
+    logging.logback.rollingpolicy.max-file-size=10MB
+    logging.logback.rollingpolicy.file-name-pattern=${spring.application.name}-%d{yyyy-MM-dd}.%i.log
+    
     # Management Endpoints
     management.endpoints.web.exposure.include=*
     management.endpoint.health.show-details=when_authorized
@@ -174,6 +189,18 @@ server like keycloak:
     # Springdoc configuration
     springdoc.swagger-ui.path=/swagger-ui.html
     springdoc.packagesToScan=org.grad.eNav.apiGateway.controllers
+    
+    # Eureka Client Configuration
+    eureka.client.service-url.defaultZone=http://${service.variable.eureka.server.name}:${service.variable.eureka.server.port}/eureka/
+    eureka.client.registryFetchIntervalSeconds=5
+    eureka.instance.preferIpAddress=false
+    eureka.instance.leaseRenewalIntervalInSeconds=10
+    eureka.instance.hostname=localhost
+    eureka.instance.securePortEnabled=true
+    eureka.instance.nonSecurePortEnabled=false
+    
+    # Spring-boot Admin Configuration
+    spring.boot.admin.client.url=http://${service.variable.eureka.server.name}:${service.variable.eureka.server.port}/admin
     
     # Enable route discovery automatically through Eureka
     spring.cloud.gateway.discovery.locator.enabled=true
@@ -195,34 +222,17 @@ server like keycloak:
     # Organisation MRN allowed access via X.509 certificates
     gla.rad.api-gateway.x509.organisation.mrn=urn:mrn:mcp:org:mcc
     
-    # Eureka Client Configuration
-    eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
-    eureka.client.registryFetchIntervalSeconds=5
-    eureka.instance.preferIpAddress=false
-    eureka.instance.leaseRenewalIntervalInSeconds=10
-    eureka.instance.hostname=localhost
-    eureka.instance.nonSecurePortEnabled=false
-    eureka.instance.securePortEnabled=true
-    eureka.instance.statusPageUrl='https://${eureka.instance.hostName}:${server.port}/info'
-    eureka.instance.healthCheckUrl='https://${eureka.instance.hostName}:${server.port}/health'
-    eureka.instance.homePageUrl='https://${eureka.instance.hostName}:${server.port}/'
-    
-    # Spring-boot Admin Configuration
-    spring.boot.admin.client.url=http://localhost:8761/admin
-    
     # Keycloak Configuration
-    spring.security.oauth2.client.provider.keycloak.token-uri=http://<keycloak.server.com>:8090/realms/<realm>/protocol/openid-connect/token
-    spring.security.oauth2.client.provider.keycloak.authorization-uri=http://<keycloak.server.com>:8090/realms/<realm>/protocol/openid-connect/auth
-    spring.security.oauth2.client.provider.keycloak.userinfo-uri=http://<keycloak.server.com>:8090/realms/<realm>/protocol/openid-connect/userinfo
-    spring.security.oauth2.client.provider.keycloak.user-name-attribute=preferred_username
-    spring.security.oauth2.client.provider.keycloak.issuer-uri=http://<keycloak.server.com>:8090/realms/<realm>
-    spring.security.oauth2.client.registration.keycloak.provider=keycloak
     spring.security.oauth2.client.registration.keycloak.client-id=api-gateway
-    spring.security.oauth2.client.registration.keycloak.client-secret={cipher}changeit
+    spring.security.oauth2.client.registration.keycloak.client-secret=<changeit>
+    spring.security.oauth2.client.registration.keycloak.client-name=Keycloak
+    spring.security.oauth2.client.registration.keycloak.provider=keycloak
     spring.security.oauth2.client.registration.keycloak.authorization-grant-type=authorization_code
     spring.security.oauth2.client.registration.keycloak.scope=openid
     spring.security.oauth2.client.registration.keycloak.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
-    spring.security.oauth2.resourceserver.jwt.issuer-uri=http://<keycloak.server.com>:8090/realms/<realm>
+    spring.security.oauth2.client.provider.keycloak.issuer-uri=http://${service.variable.keycloak.server.name}:${service.variable.keycloak.server.port}/realms/${service.variable.keycloak.server.realm}
+    spring.security.oauth2.client.provider.keycloak.user-name-attribute=preferred_username
+    spring.security.oauth2.resourceserver.jwt.issuer-uri=http://${service.variable.keycloak.server.name}:${service.variable.keycloak.server.port}/realms/${service.variable.keycloak.server.realm}
     
     # Add web-socket rewriting configuration
     spring.cloud.gateway.routes[0].id=route_no_1
