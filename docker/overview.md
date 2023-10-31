@@ -255,7 +255,7 @@ server like keycloak, logging configuration, the eureka client connection etc.:
     server.ssl.key-store-password=<changeit>
     server.ssl.key-alias=api-gateway
     server.ssl.key-password=<changeit>
-    server.ssl.trust-store=path.to.truststore>
+    server.ssl.trust-store=<path.to.truststore>
     server.ssl.trust-store-password=<changeit>
     server.ssl.client-auth=want
 
