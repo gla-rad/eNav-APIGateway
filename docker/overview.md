@@ -251,11 +251,11 @@ server like keycloak, logging configuration, the eureka client connection etc.:
     
     # The Server SSL Configuration
     server.ssl.enabled=true
-    server.ssl.key-store=classpath:keystore.jks
+    server.ssl.key-store=<path.to.keystore>
     server.ssl.key-store-password=<changeit>
     server.ssl.key-alias=api-gateway
     server.ssl.key-password=<changeit>
-    server.ssl.trust-store=classpath:truststore.jks
+    server.ssl.trust-store=path.to.truststore>
     server.ssl.trust-store-password=<changeit>
     server.ssl.client-auth=want
 
