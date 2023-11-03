@@ -1,7 +1,7 @@
 # Build like this:
 #     docker build -t <version> -f Dockerfile ..
 # e.g.
-#     docker build -t glarad/enav-api-gateway:latest -f Dockerfile ..
+#     docker build -t glarad/enav-api-gateway:latest -f Dockerfile .
 #
 # Run like this:
 #     sudo docker run -t -i --rm -p 8760:8760 -v /path/to/config-directory/on/machine:/conf <image-id>
@@ -23,7 +23,7 @@ LABEL org.opencontainers.image.source="https://github.com/gla-rad/eNav-APIGatewa
 WORKDIR /app
 
 # Copy the Spring Boot JAR file into the container
-COPY target/api-gateway-0.0.4-SNAPSHOT.jar /app/
+COPY ../target/api-gateway-0.0.4-SNAPSHOT.jar /app/
 
 # Create a modules path just in case
 ENV LOADER_PATH /modules
