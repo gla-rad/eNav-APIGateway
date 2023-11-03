@@ -1,6 +1,5 @@
-package org.grad.eNav.apiGateway.components;
 /*
- * Copyright (c) 2021 GLA Research and Development Directorate
+ * Copyright (c) 2023 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +13,8 @@ package org.grad.eNav.apiGateway.components;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.grad.eNav.apiGateway.components;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;

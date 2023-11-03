@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 GLA Research and Development Directorate
+ * Copyright (c) 2023 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-@ActiveProfiles("test")
 @WebFluxTest(HTMLViewerController.class)
+@Import(TestingConfiguration.class)
 class HTMLViewerControllerTest {
 
     /**
@@ -43,20 +42,6 @@ class HTMLViewerControllerTest {
         // Perform the MVC request
         this.webTestClient.get()
                 .uri("/")
-                .accept(MediaType.TEXT_HTML)
-                .exchange()
-                .expectStatus()
-                .isFound();
-    }
-
-    /**
-     * Test that we can access the token page.
-     */
-    @Test
-    void testGetToken() throws Exception {
-        // Perform the MVC request
-        this.webTestClient.get()
-                .uri("/login")
                 .accept(MediaType.TEXT_HTML)
                 .exchange()
                 .expectStatus()

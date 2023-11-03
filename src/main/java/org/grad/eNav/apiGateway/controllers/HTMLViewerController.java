@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 GLA Research and Development Directorate
+ * Copyright (c) 2023 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,11 @@ package org.grad.eNav.apiGateway.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.WebSession;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Map;
 
 /**
  * The Home Viewer Controller.
@@ -38,15 +31,15 @@ import java.util.Map;
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
-@RestController
+@Controller
 @Slf4j
 public class HTMLViewerController {
 
     /**
      * The index HTML source file.
      */
-    @Value("${gla.rad.api-gateway.resources.index:classpath:/templates/index.html}")
-    Resource resourceFile;
+    @Value("${gla.rad.api-gateway.eureka.url:/eureka/admin}")
+    String eurekaUrl;
 
     /**
      * The home page of the API gateway.
@@ -54,23 +47,14 @@ public class HTMLViewerController {
      * This can just be a list of all the services currently available along
      * with link for easy access.
      *
-     * @param session the current session.
+     * @param model The application UI model
      * @return The home page output
      */
     @GetMapping("/")
-    public Mono<String> index(WebSession session) throws IOException {
-        return Mono.just(new String(resourceFile.getInputStream().readAllBytes()));
-    }
-
-    /**
-     * Allows users to easily access their keycloak JWT token.
-     *
-     * @param authorizedClient the authorized client
-     * @return the JWT token of the authorized client
-     */
-    @GetMapping(value = "/token")
-    public Mono<String> getHome(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
-        return Mono.just(authorizedClient.getAccessToken().getTokenValue());
+    public String index(Model model) throws IOException {
+        model.addAttribute("eurekaUrl", this.eurekaUrl);
+        // Return the rendered index
+        return "index";
     }
 
 }

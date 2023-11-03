@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -18,12 +18,11 @@
     </div>
     <div class="container">
         <table class="table table-striped">
-            <tr><td><a href='/eureka/admin'>Eureka</a></td></tr>
+            <tr><td><a th:href="@{${eurekaUrl}}" target="_blank">Eureka</a></td></tr>
             <tr><td><a href='/msg-broker/'>Message Broker</a></td></tr>
             <tr><td><a href='/vdes-ctrl/'>VDES Controller</a></td></tr>
             <tr><td><a href='/ckeeper/'>Certificate Keeper</a></td></tr>
             <tr><td><a href='/aton-service/'>AtoN Service</a></td></tr>
-            <tr><td><a href='/raiman/'>RAIM Availability Notifier</a></td></tr>
         </table>
     </div>
 </body>
