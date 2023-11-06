@@ -1,7 +1,7 @@
 # Build like this:
 #     docker build -t <version> -f Dockerfile ..
 # e.g.
-#     docker build -t glarad/enav-api-gateway:latest -f Dockerfile .
+#     docker build -t glarad/enav-api-gateway:latest -f Dockerfile ..
 #
 # Run like this:
 #     sudo docker run -t -i --rm -p 8760:8760 -v /path/to/config-directory/on/machine:/conf <image-id>
