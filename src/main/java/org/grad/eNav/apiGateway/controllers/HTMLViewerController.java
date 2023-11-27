@@ -38,6 +38,12 @@ public class HTMLViewerController {
     /**
      * The index HTML source file.
      */
+    @Value("${gla.rad.api-gateway.resources.index:index}")
+    String resourceFile;
+
+    /**
+     * The URL of the Eureka micro-service Springboot Admin interface.
+     */
     @Value("${gla.rad.api-gateway.eureka.url:/eureka/admin}")
     String eurekaUrl;
 
@@ -54,7 +60,7 @@ public class HTMLViewerController {
     public String index(Model model) throws IOException {
         model.addAttribute("eurekaUrl", this.eurekaUrl);
         // Return the rendered index
-        return "index";
+        return this.resourceFile;
     }
 
 }
