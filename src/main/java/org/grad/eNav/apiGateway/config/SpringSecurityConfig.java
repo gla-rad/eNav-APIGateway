@@ -168,7 +168,7 @@ class SpringSecurityConfig {
                         InfoEndpoint.class,         //info endpoints
                         HealthEndpoint.class        //health endpoints
                     )).permitAll()
-                    .pathMatchers(openResources).permitAll()
+                    .pathMatchers(this.openResources).permitAll()
                     .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
                     .pathMatchers(
                             "/*/actuator",
