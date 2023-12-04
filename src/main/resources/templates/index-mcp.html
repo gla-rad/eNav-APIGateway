@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -33,10 +33,11 @@
     </div>
     <div class="container">
         <table class="table table-striped">
-            <tr><td><a href='/wiki/'>GRAD Wiki</a></td></tr>
-            <tr><td><a href='/piwigo/'>AtoN Image DB</a></td></tr>
-            <tr><td><a href='/eloran/'>e-Loran Monitoring Service</a></td></tr>
-            <tr><td><a href='/raiman/'>RAIM Availability Monitor</a></td></tr>
+            <tr><td><a th:href='@{enav}'>e-Navigation Service Architecture</a></td></tr>
+            <tr><td><a th:href='@{wiki}'>GRAD Wiki</a></td></tr>
+            <tr><td><a th:href='@{piwigo}'>AtoN Image DB</a></td></tr>
+            <tr><td><a th:href='@{eloran}'>e-Loran Monitoring Service</a></td></tr>
+            <tr><td><a th:href='@{raiman}'>RAIM Availability Monitor</a></td></tr>
         </table>
     </div>
 </body>
