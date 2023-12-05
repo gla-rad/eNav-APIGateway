@@ -149,7 +149,7 @@ class SpringSecurityConfig {
                                                             RestTemplate restTemplate) {
         // Authenticate through configured OpenID Provider
         http.oauth2Login(oauth2 -> oauth2
-                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"))
+                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("{baseUrl}/login/oauth2/code/{registrationId}"))
         );
         // Also, logout at the OpenID Connect provider
         http.logout(logout -> logout
