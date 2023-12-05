@@ -22,10 +22,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -76,9 +73,17 @@ public class KeycloakGrantedAuthoritiesMapper implements GrantedAuthoritiesMappe
             var userInfo = oidcUserAuthority.getUserInfo();
 
             if (userInfo.hasClaim(RESOURCE_ACCESS_CLAIM)) {
-                final Map<String, Object> realmAccess = (Map<String, Object>) userInfo.getClaimAsMap(RESOURCE_ACCESS_CLAIM);
-                final Map<String, Object> clientAccess = (Map<String, Object>) realmAccess.get(this.resourceId);
-                final Collection<String> roles = (Collection<String>) clientAccess.get(ROLES_CLAIM);
+                final Map<?, ?> realmAccess = userInfo.getClaimAsMap(RESOURCE_ACCESS_CLAIM);
+                final Map<?, ?> clientAccess = Optional.of(realmAccess)
+                        .map(m -> m.get(RESOURCE_ACCESS_CLAIM))
+                        .filter(Map.class::isInstance)
+                        .map(Map.class::cast)
+                        .orElseGet(Collections::emptyMap);
+                final Collection<?> roles = Optional.of(clientAccess)
+                        .map(m -> m.get(ROLES_CLAIM))
+                        .filter(Collection.class::isInstance)
+                        .map(Collection.class::cast)
+                        .orElseGet(Collections::emptyList);
                 mappedAuthorities.addAll(this.generateAuthoritiesFromClaim(roles));
             }
         } else {
@@ -86,9 +91,21 @@ public class KeycloakGrantedAuthoritiesMapper implements GrantedAuthoritiesMappe
             Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
 
             if (userAttributes.containsKey(RESOURCE_ACCESS_CLAIM)) {
-                final Map<String, Object> realmAccess = (Map<String, Object>) userAttributes.get(RESOURCE_ACCESS_CLAIM);
-                final Map<String, Object> clientAccess = (Map<String, Object>) realmAccess.get(this.resourceId);
-                final Collection<String> roles = (Collection<String>) clientAccess.get(ROLES_CLAIM);
+                final Map<?, ?> realmAccess = Optional.of(userAttributes)
+                        .map(m -> m.get(RESOURCE_ACCESS_CLAIM))
+                        .filter(Map.class::isInstance)
+                        .map(Map.class::cast)
+                        .orElseGet(Collections::emptyMap);
+                final Map<?, ?> clientAccess = Optional.of(realmAccess)
+                        .map(m -> m.get(RESOURCE_ACCESS_CLAIM))
+                        .filter(Map.class::isInstance)
+                        .map(Map.class::cast)
+                        .orElseGet(Collections::emptyMap);
+                final Collection<?> roles = Optional.of(clientAccess)
+                        .map(m -> m.get(ROLES_CLAIM))
+                        .filter(Collection.class::isInstance)
+                        .map(Collection.class::cast)
+                        .orElseGet(Collections::emptyList);
                 mappedAuthorities.addAll(this.generateAuthoritiesFromClaim(roles));
             }
         }
@@ -103,7 +120,10 @@ public class KeycloakGrantedAuthoritiesMapper implements GrantedAuthoritiesMappe
      * @param roles the collection of roles
      * @return the respective collection of GrantedAuthority objects
      */
-    private Collection<GrantedAuthority> generateAuthoritiesFromClaim(Collection<String> roles) {
-        return roles.stream().map(x -> new SimpleGrantedAuthority("ROLE_" + x.toUpperCase())).collect(Collectors.toList());
+    private Collection<GrantedAuthority> generateAuthoritiesFromClaim(Collection<?> roles) {
+        return roles.stream()
+                .map(Object::toString)
+                .map(x -> new SimpleGrantedAuthority("ROLE_" + x.toUpperCase()))
+                .collect(Collectors.toList());
     }
 }
