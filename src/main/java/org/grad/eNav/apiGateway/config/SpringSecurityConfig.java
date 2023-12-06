@@ -147,9 +147,9 @@ class SpringSecurityConfig {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
                                                             ReactiveClientRegistrationRepository clientRegistrationRepository,
                                                             RestTemplate restTemplate) {
-        // Authenticate through configured OpenID Provider
+        // Authenticate through configured OpenID Provide
         http.oauth2Login(oauth2 -> oauth2
-                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("{baseUrl}/login/oauth2/code/{registrationId}"))
+                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"))
         );
         // Also, logout at the OpenID Connect provider
         http.logout(logout -> logout
