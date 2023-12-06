@@ -182,10 +182,7 @@ class SpringSecurityConfig {
         // Add the forwarded X.509 certificate authentication support
         http.addFilterAt(new ForwardedX509HeadersFilter(this.x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
         http.addFilterAfter(new X509ClientCertificateFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
-        http.addFilterAfter((exchange, chain) -> {
-            exchange.getRequest().getHeaders().add("X-Forwarded-Prefix", "/enav");
-            return chain.filter(exchange);
-        }, SecurityWebFiltersOrder.AUTHORIZATION);
+
         // Disable the CSRF
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);
 
