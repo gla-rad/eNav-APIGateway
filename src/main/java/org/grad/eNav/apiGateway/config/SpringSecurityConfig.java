@@ -148,7 +148,7 @@ class SpringSecurityConfig {
                                                             RestTemplate restTemplate) {
         // Authenticate through configured OpenID Provide
         http.formLogin(login -> login
-                .loginPage("{baseUrl}/oauth2/authorization/keycloak")
+                .loginPage("/enav/oauth2/authorization/keycloak")
         );
         http.oauth2Login(oauth2 -> {}
 //                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("{baseUrl}/login/oauth2/code/{registrationId}"))
