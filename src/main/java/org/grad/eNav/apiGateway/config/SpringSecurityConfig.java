@@ -38,12 +38,9 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -52,7 +49,7 @@ import org.springframework.web.client.RestTemplate;
  * This is the security definition for the filter chains of the API gateway.
  * Therefore, is it slightly different from all the other microservice. It
  * is still required though that the actuator points are handled differently
- * so that the spingboot admin connection works properly.
+ * so that the springboot admin connection works properly.
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
@@ -150,8 +147,10 @@ class SpringSecurityConfig {
                                                             ReactiveClientRegistrationRepository clientRegistrationRepository,
                                                             RestTemplate restTemplate) {
         // Authenticate through configured OpenID Provide
-        http.oauth2Login(oauth2 -> oauth2
-                .authorizationRequestResolver(this.authorizationRequestResolver(clientRegistrationRepository))
+        http.formLogin(login -> login
+                .loginPage("{baseUrl}/oauth2/authorization/keycloak")
+        );
+        http.oauth2Login(oauth2 -> {}
 //                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("{baseUrl}/login/oauth2/code/{registrationId}"))
         );
         // Also, logout at the OpenID Connect provider
@@ -160,7 +159,7 @@ class SpringSecurityConfig {
 //                .logoutSuccessHandler(new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository))
         );
         // Require authentication for all requests
-        http.x509( x509 -> x509
+        http.x509(x509 -> x509
                     .principalExtractor(this.x509PrincipalExtractor)
                     .authenticationManager(this.x509AuthenticationManager)
              )
@@ -194,10 +193,4 @@ class SpringSecurityConfig {
         return http.build();
     }
 
-    private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository) {
-        return new DefaultServerOAuth2AuthorizationRequestResolver(
-                clientRegistrationRepository,
-                new PathPatternParserServerWebExchangeMatcher("/enav/oauth2/authorization/keycloak")
-        );
-    }
 }
