@@ -38,10 +38,13 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -148,9 +151,10 @@ class SpringSecurityConfig {
                                                             ReactiveClientRegistrationRepository clientRegistrationRepository,
                                                             RestTemplate restTemplate) {
         // Authenticate through configured OpenID Provide
-//        http.oauth2Login(oauth2 -> oauth2
-//                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"))
-//        );
+        http.oauth2Login(oauth2 -> {}
+//                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("{baseUrl}/login/oauth2/code/{registrationId}"))
+//                .authorizationRequestResolver(this.authorizationRequestResolver(clientRegistrationRepository))
+        );
         // Also, logout at the OpenID Connect provider
         http.logout(logout -> logout
                 .logoutHandler(keycloakLogoutHandler(restTemplate))
@@ -189,6 +193,13 @@ class SpringSecurityConfig {
 
         // Build and return
         return http.build();
+    }
+
+    private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+        return new DefaultServerOAuth2AuthorizationRequestResolver(
+                clientRegistrationRepository,
+                new PathPatternParserServerWebExchangeMatcher("/oauth2/authorization/keycloak")
+        );
     }
 
 }
