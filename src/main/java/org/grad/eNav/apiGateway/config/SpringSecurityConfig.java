@@ -151,9 +151,8 @@ class SpringSecurityConfig {
                                                             ReactiveClientRegistrationRepository clientRegistrationRepository,
                                                             RestTemplate restTemplate) {
         // Authenticate through configured OpenID Provide
-        http.oauth2Login(oauth2 -> {}
-//                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("{baseUrl}/login/oauth2/code/{registrationId}"))
-//                .authorizationRequestResolver(this.authorizationRequestResolver(clientRegistrationRepository))
+        http.oauth2Login(oauth2 -> oauth2
+                .authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"))
         );
         // Also, logout at the OpenID Connect provider
         http.logout(logout -> logout
@@ -193,13 +192,6 @@ class SpringSecurityConfig {
 
         // Build and return
         return http.build();
-    }
-
-    private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository) {
-        return new DefaultServerOAuth2AuthorizationRequestResolver(
-                clientRegistrationRepository,
-                new PathPatternParserServerWebExchangeMatcher("/oauth2/authorization/keycloak")
-        );
     }
 
 }
