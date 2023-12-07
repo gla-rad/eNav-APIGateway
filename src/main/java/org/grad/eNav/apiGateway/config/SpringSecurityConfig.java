@@ -16,6 +16,7 @@
 
 package org.grad.eNav.apiGateway.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.grad.eNav.apiGateway.components.ForwardedX509HeadersFilter;
 import org.grad.eNav.apiGateway.components.X509AuthenticationManager;
 import org.grad.eNav.apiGateway.components.X509ClientCertificateFilter;
@@ -55,6 +56,7 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
+@Slf4j
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
@@ -184,16 +186,7 @@ class SpringSecurityConfig {
         // Add the forwarded X.509 certificate authentication support
         http.addFilterAt(new ForwardedX509HeadersFilter(this.x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
         http.addFilterAfter(new X509ClientCertificateFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
-        http.addFilterAfter((exchange, chain) -> {
-            final ServerHttpRequest forwardedRequest = exchange.getRequest()
-                    .mutate()
-                    .header("X-Forwarded-Prefix", "/enav")
-                    .build();
-            final ServerWebExchange forwardedExchange = exchange.mutate()
-                    .request(forwardedRequest)
-                    .build();
-            return chain.filter(forwardedExchange);
-        }, SecurityWebFiltersOrder.AUTHORIZATION);
+
         // Disable the CSRF
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);
 
