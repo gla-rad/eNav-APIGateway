@@ -71,7 +71,7 @@ public class StripContextAndPrefixGatewayFilterFactory extends AbstractGatewayFi
 
                 // Generate the suffix path
                 String contextPath = "/" + Arrays
-                        .stream(StringUtils.tokenizeToStringArray(newPath.toString(), "/"))
+                        .stream(StringUtils.tokenizeToStringArray(path, "/"))
                         .skip(config.getParts())
                         .collect(Collectors.joining("/"));
 
