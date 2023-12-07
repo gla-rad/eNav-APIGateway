@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class StripContextAndPrefixGatewayFilterFactory extends AbstractGatewayFilterFactory<StripPrefixGatewayFilterFactory.Config> {
@@ -68,7 +69,13 @@ public class StripContextAndPrefixGatewayFilterFactory extends AbstractGatewayFi
                     newPath.append('/');
                 }
 
-                ServerHttpRequest newRequest = request.mutate().contextPath(newPath.toString()).path(newPath.toString()).build();
+                // Generate the suffix path
+                String contextPath = "/" + Arrays
+                        .stream(StringUtils.tokenizeToStringArray(newPath.toString(), "/"))
+                        .skip(config.getParts())
+                        .collect(Collectors.joining("/"));
+
+                ServerHttpRequest newRequest = request.mutate().contextPath(contextPath).path(newPath.toString()).build();
                 exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newRequest.getURI());
                 return chain.filter(exchange.mutate().request(newRequest).build());
             }
