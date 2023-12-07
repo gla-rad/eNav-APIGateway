@@ -31,6 +31,7 @@ import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -42,6 +43,7 @@ import org.springframework.security.web.authentication.session.RegisterSessionAu
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * The Web Security Configuration.
@@ -182,7 +184,16 @@ class SpringSecurityConfig {
         // Add the forwarded X.509 certificate authentication support
         http.addFilterAt(new ForwardedX509HeadersFilter(this.x509AuthenticationManager), SecurityWebFiltersOrder.AUTHENTICATION);
         http.addFilterAfter(new X509ClientCertificateFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
-
+        http.addFilterAfter((exchange, chain) -> {
+            final ServerHttpRequest forwardedRequest = exchange.getRequest()
+                    .mutate()
+                    .header("X-Forwarded-Prefix", "/enav")
+                    .build();
+            final ServerWebExchange forwardedExchange = exchange.mutate()
+                    .request(forwardedRequest)
+                    .build();
+            return chain.filter(forwardedExchange);
+        }, SecurityWebFiltersOrder.AUTHORIZATION);
         // Disable the CSRF
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);
 
