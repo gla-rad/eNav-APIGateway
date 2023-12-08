@@ -83,6 +83,13 @@ public class StripContextAndPrefixGatewayFilterFactory extends AbstractGatewayFi
         super(StripPrefixGatewayFilterFactory.Config.class);
     }
 
+    /**
+     * Extending the field ordering function of the
+     * AbstractGatewayFilterFactory. In this case there only one filter, i.e.
+     * the "parts".
+     *
+     * @return the list with the ordering fields
+     */
     public List<String> shortcutFieldOrder() {
         return Arrays.asList("parts");
     }
