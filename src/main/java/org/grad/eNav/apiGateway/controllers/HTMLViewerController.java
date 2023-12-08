@@ -48,6 +48,12 @@ public class HTMLViewerController {
     String eurekaUrl;
 
     /**
+     * The URL of the Niord front-end interface.
+     */
+    @Value("${gla.rad.api-gateway.niord.url:/niord}")
+    String niordUrl;
+
+    /**
      * The home page of the API gateway.
      *
      * This can just be a list of all the services currently available along
@@ -59,6 +65,7 @@ public class HTMLViewerController {
     @GetMapping("/")
     public String index(Model model) throws IOException {
         model.addAttribute("eurekaUrl", this.eurekaUrl);
+        model.addAttribute("niordUrl", this.niordUrl);
         // Return the rendered index
         return this.resourceFile;
     }
