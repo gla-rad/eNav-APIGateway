@@ -29,6 +29,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +81,10 @@ public class StripContextAndPrefixGatewayFilterFactory extends AbstractGatewayFi
      */
     public StripContextAndPrefixGatewayFilterFactory() {
         super(StripPrefixGatewayFilterFactory.Config.class);
+    }
+
+    public List<String> shortcutFieldOrder() {
+        return Arrays.asList("parts");
     }
 
     /**
