@@ -94,7 +94,7 @@ locally.
 ### Cloud Config Configuration
 
 In order to run the image in a **Cloud Config** configuration, you just need
-to provide the environment variables that allow is to connect to the cloud
+to provide the environment variables that allow it to connect to the cloud
 config server. This is assumed to be provided the GRAD e-Navigation Service
 Architecture
 [Eureka Service](https://hub.docker.com/repository/docker/glarad/enav-eureka/).
