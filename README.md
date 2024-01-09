@@ -102,7 +102,6 @@ IDE. Nothing exotic about the goals, just clean and install should do:
     mvn clean package
 
 ### How to Run
-
 This service can be run in two ways (based on the use or not of the Spring Cloud
 Config server).
 * Enabling the cloud config client and using the configurations located in an
@@ -111,12 +110,10 @@ Config server).
   locally.
 
 #### Cloud Config Configuration
-
 In order to run the service in a **Cloud Config** configuration, you just need
 to provide the environment variables that allow it to connect to the cloud
 config server. This is assumed to be provided the GRAD e-Navigation Service
-Architecture
-[Eureka Service](https://github.com/gla-rad/enav-Eureka/).
+Architecture [Eureka Service](https://github.com/gla-rad/enav-Eureka/).
 
 The available environment variables are:
 
@@ -153,7 +150,6 @@ use the following command:
         <api-gateway.jar>
 
 #### Local Config Configuration
-
 In order to run the service in a **Local Config** configuration, you just need
 to create a local configuration directory that contains the necessary
 **.properties** files (including bootstrap) of the service.
