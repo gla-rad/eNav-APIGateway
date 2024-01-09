@@ -116,7 +116,7 @@ In order to run the service in a **Cloud Config** configuration, you just need
 to provide the environment variables that allow it to connect to the cloud
 config server. This is assumed to be provided the GRAD e-Navigation Service
 Architecture
-[Eureka Service](https://hub.docker.com/repository/docker/glarad/enav-eureka/).
+[Eureka Service](https://github.com/gla-rad/enav-Eureka/).
 
 The available environment variables are:
 
@@ -353,8 +353,8 @@ discuss what you would like to change.
 Please make sure to update tests as appropriate.
 
 ## License
-Distributed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for
-more information.
+Distributed under the Apache License, Version 2.0. See [LICENSE](./LICENSE.md)
+for more information.
 
 ## Contact
 Nikolaos Vastardis - Nikolaos.Vastardis@gla-rad.org
