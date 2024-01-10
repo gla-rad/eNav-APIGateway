@@ -8,6 +8,7 @@ option for horizontal scaling. The core micro-service is built using the
 Springboot framework.
 
 ## What is e-Navigation
+
 The maritime domain is facing a number for challenges, mainly due to the
 increasing demand, that may increase the risk of an accident or loss of life.
 These challenges require technological solutions and e-Navigation is one such
@@ -80,7 +81,8 @@ to complement the architecture functionality by appropriately routing the
 incoming requests, providing rate limiting and throttling, and handle the client
 HTTP/HTTPS sessions if necessary.
 
-### Development Setup
+## Development Setup
+
 To start developing just open the repository with the IDE of your choice. The
 original code has been generated using
 [Intellij IDEA](https://www.jetbrains.com/idea). Just open it by going to:
@@ -92,7 +94,8 @@ Provide the URL of the current repository and the local directory you want.
 You don't have to use it if you have another preference. Just make sure you
 update the *.gitignore* file appropriately.
 
-### Build Setup
+## Build Setup
+
 The project is using the latest OpenJDK 21 to build, although earlier versions
 should also work.
 
@@ -101,7 +104,8 @@ IDE. Nothing exotic about the goals, just clean and install should do:
 
     mvn clean package
 
-### How to Run
+## How to Run
+
 This service can be run in two ways (based on the use or not of the Spring Cloud
 Config server).
 * Enabling the cloud config client and using the configurations located in an
@@ -109,7 +113,8 @@ Config server).
 * Disabling the cloud config client and using the configuration provided
   locally.
 
-#### Cloud Config Configuration
+### Cloud Config Configuration
+
 In order to run the service in a **Cloud Config** configuration, you just need
 to provide the environment variables that allow it to connect to the cloud
 config server. This is assumed to be provided the GRAD e-Navigation Service
@@ -149,10 +154,11 @@ use the following command:
         -DENAV_CLOUD_CONFIG_PASSWORD='<config config repository passord>' \
         <api-gateway.jar>
 
-#### Local Config Configuration
+### Local Config Configuration
+
 In order to run the service in a **Local Config** configuration, you just need
-to create a local configuration directory that contains the necessary
-**.properties** files (including bootstrap) of the service.
+to provide a local configuration directory that contains the necessary
+**.properties** files (including bootstrap).
 
 Then we can run the service in the following way:
 
@@ -267,10 +273,29 @@ server like keycloak, logging configuration, the eureka client connection etc.:
     # Front-end Information
     gla.rad.api-gateway.eureka.url=${service.variable.eureka.server.url}
 
+## Operation
+
+The operation of the gateway is pretty simple. It will receive the incoming
+requests and route them according to the active micro-service currently 
+registered with the Eureka client of the environment. The name of the service
+needs to match exactly the path segment in lowercase. For example, if you are
+looking for a service registered in eureka as '''TEST-SERVICE''', then the
+path required to be provided in the gateway is:
+
+    api-gateway/test-service/
+
+In addition to routing, the gateway also supports a simple home page where the
+most common micro-service are listed as links.
+
+Finally, in order for the gateway service to be registered with the Eureka 
+Springboot Admin service, the Spring actuators have been configured 
+appropriately.
+
 ### PKI and X.509 Certificates
+
 The API Gateway can also be accessed using X.509 certificates, as it is supposed
 to support SECOM. It is using the MCP PKI so all certificates should be
-generated through the MCP MIR. 
+generated through the MCP MIR.
 
 The MCP MIR currently supports three levels of certificates:
 
@@ -280,7 +305,7 @@ The MCP MIR currently supports three levels of certificates:
 * Level 3: The entity certificates (for service, devices, vessels, users, roles,
   etc.)
 
-Therefore, the service it-self supports HTTPS (using TLS/SSL), based on a 
+Therefore, the service it-self supports HTTPS (using TLS/SSL), based on a
 service certificate provided by the MCP MIR. This is supposed to be contained
 in a keystore, with a known alias so that it can be picked up. After generating
 the certificate in the MIR (and supposing that you already have the
@@ -325,34 +350,20 @@ Then the *application.properties* file should be configured as follows:
 You can find a nice tutorial on all of this process
 [here](https://www.baeldung.com/x-509-authentication-in-spring-security).
 
-### Operation
-The operation of the gateway is pretty simple. It will receive the incoming
-requests and route them according to the active micro-service currently 
-registered with the Eureka client of the environment. The name of the service
-needs to match exactly the path segment in lowercase. For example, if you are
-looking for a service registered in eureka as '''TEST-SERVICE''', then the
-path required to be provided in the gateway is:
-
-    api-gateway/test-service/
-
-In addition to routing, the gateway also supports a simple home page where the
-most common micro-service are listed as links.
-
-Finally, in order for the gateway service to be registered with the Eureka 
-Springboot Admin service, the Spring actuators have been configured 
-appropriately.
-
 ## Contributing
+
 Pull requests are welcome. For major changes, please open an issue first to
 discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
 
 ## License
+
 Distributed under the Apache License, Version 2.0. See [LICENSE](./LICENSE.md)
 for more information.
 
 ## Contact
+
 Nikolaos Vastardis - Nikolaos.Vastardis@gla-rad.org
 
 
