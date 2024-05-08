@@ -80,6 +80,7 @@ public class X509AuthenticationManager implements ReactiveAuthenticationManager 
 
             // If the allowed organisations are restricted, apply that to the access
             if(Strings.isNotBlank(this.allowedOrganisationMrn)) {
+                log.debug("Allowed organisations are with MRN prefix {}", this.allowedOrganisationMrn);
                 authentication.setAuthenticated(x500PrincipalMap.get(BCStyle.O).startsWith(this.allowedOrganisationMrn));
             }
         } else {
@@ -87,6 +88,7 @@ public class X509AuthenticationManager implements ReactiveAuthenticationManager 
         }
 
         // Return the authentication
+        log.debug("The final authentication decision was {}", authentication.isAuthenticated());
         return Mono.just(authentication);
     }
 
