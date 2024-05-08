@@ -73,6 +73,7 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
             if(!httpHeaders.containsKey(X_SSL_CERT_HEADER) || Objects.isNull(httpHeaders.getFirst(X_SSL_CERT_HEADER))) {
                 return Mono.just(new PreAuthenticatedAuthenticationToken("unauthorised", "unauthorised"));
             }
+            log.debug("Accessing the X509 authentication due to an SSL certificate in the header...");
 
             // Extract the certificate and it's OU principal
             final String decodedPem = URLDecoder.decode(httpHeaders.getFirst(X_SSL_CERT_HEADER), StandardCharsets.UTF_8);

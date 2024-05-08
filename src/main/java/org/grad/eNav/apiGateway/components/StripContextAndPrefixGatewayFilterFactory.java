@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  *     here
  * </a>.
  * </p>
- * This filter factor follows this work around to allow the correct service
+ * This filter factory follows this work around to allow the correct service
  * routing through the service configuration as follows:
  * <p>
  *  # Adding Route for the "/enav" sub-path support
