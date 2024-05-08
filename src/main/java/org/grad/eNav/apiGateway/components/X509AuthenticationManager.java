@@ -73,6 +73,11 @@ public class X509AuthenticationManager implements ReactiveAuthenticationManager 
             final X500Principal x500Principal = ((X509Certificate)authentication.getCredentials()).getSubjectX500Principal();
             final Map<ASN1ObjectIdentifier,String> x500PrincipalMap = this.parseX509Principal(x500Principal);
 
+            // Put some debugging cause this is a really sticking point
+            log.debug("X509 authentication request from {} for organisation {} received",
+                    x500PrincipalMap.get(BCStyle.CN),
+                    x500PrincipalMap.get(BCStyle.O));
+
             // If the allowed organisations are restricted, apply that to the access
             if(Strings.isNotBlank(this.allowedOrganisationMrn)) {
                 authentication.setAuthenticated(x500PrincipalMap.get(BCStyle.O).startsWith(this.allowedOrganisationMrn));
