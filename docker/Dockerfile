@@ -35,6 +35,6 @@ ENV SPRING_PROFILES_ACTIVE=prod
 # Define a variable for the configuration directory
 ENV CONFIG_DIR=/conf
 
-EXPOSE 8760
+EXPOSE 8760 5005
 
-CMD ["java", "-jar", "api-gateway-0.0.4-SNAPSHOT.jar", "--spring.config.location=optional:classpath:/,optional:file:${CONFIG_DIR}/"]
+CMD ["java", "-jar", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "api-gateway-0.0.4-SNAPSHOT.jar", "--spring.config.location=optional:classpath:/,optional:file:${CONFIG_DIR}/"]
