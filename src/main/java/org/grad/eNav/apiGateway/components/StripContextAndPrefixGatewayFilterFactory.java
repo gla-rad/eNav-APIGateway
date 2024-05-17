@@ -63,10 +63,14 @@ import java.util.stream.Collectors;
  *  spring.cloud.gateway.routes[2].uri=lb://aton-service
  *  spring.cloud.gateway.routes[2].predicates[0]=Path=/enav/aton-service/**
  *  spring.cloud.gateway.routes[2].filters[0]=StripContextAndPrefix=2
- *  spring.cloud.gateway.routes[3].id=service-discovery-route-ckeeper
- *  spring.cloud.gateway.routes[3].uri=lb://ckeeper
- *  spring.cloud.gateway.routes[3].predicates[0]=Path=/enav/ckeeper/**
+ *  spring.cloud.gateway.routes[3].id=service-discovery-route-aton-admin-service
+ *  spring.cloud.gateway.routes[3].uri=lb://aton-admin-service
+ *  spring.cloud.gateway.routes[3].predicates[0]=Path=/enav/aton-admin-service/**
  *  spring.cloud.gateway.routes[3].filters[0]=StripContextAndPrefix=2
+ *  spring.cloud.gateway.routes[4].id=service-discovery-route-ckeeper
+ *  spring.cloud.gateway.routes[4].uri=lb://ckeeper
+ *  spring.cloud.gateway.routes[4].predicates[0]=Path=/enav/ckeeper/**
+ *  spring.cloud.gateway.routes[4].filters[0]=StripContextAndPrefix=2
  * </p>
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
