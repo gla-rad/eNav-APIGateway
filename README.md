@@ -135,7 +135,7 @@ The parameters will be picked up and used to populate the default
     spring.application.version=<application.version>
 
     # The Spring Cloud Discovery Config
-    spring.cloud.config.uri=${ENAV_CLOUD_CONFIG_URI}
+    spring.config.import=optional:configserver:${ENAV_CLOUD_CONFIG_URI}
     spring.cloud.config.username=${ENAV_CLOUD_CONFIG_USERNAME}
     spring.cloud.config.password=${ENAV_CLOUD_CONFIG_PASSWORD}
     spring.cloud.config.label=${ENAV_CLOUD_CONFIG_BRANCH}
@@ -168,22 +168,6 @@ Then we can run the service in the following way:
 
 Examples of the required properties files can be seen below.
 
-For bootstrapping, we need to disable the cloud config client, and clear out the
-environment variable inputs:
-
-    server.port=8760
-    spring.application.name=api-gateway
-    spring.application.version=<application.version>
-    
-    # Disable the cloud config
-    spring.cloud.config.enabled=false
-    
-    # Clear out the environment variables
-    spring.cloud.config.uri=
-    spring.cloud.config.username=
-    spring.cloud.config.password=
-    spring.cloud.config.label=
-
 In the application properties we need to provide the service with an OAuth2.0
 server like keycloak, logging configuration, the eureka client connection etc.:
 
@@ -195,6 +179,14 @@ server like keycloak, logging configuration, the eureka client connection etc.:
     service.variable.keycloak.server.name=<keycloak.server.name>
     service.variable.keycloak.server.port=<keycloak.server.port>
     service.variable.keycloak.server.realm=<keycloak.realm>
+
+    # Service properties
+    server.port=8760
+    spring.application.name=api-gateway
+    spring.application.version=0.0.4
+    
+    # Disable the cloud config
+    spring.cloud.config.enabled=false
     
     # Logging Configuration
     logging.file.name=/var/log/${spring.application.name}.log
