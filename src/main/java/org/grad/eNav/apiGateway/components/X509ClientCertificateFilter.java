@@ -22,6 +22,7 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
+import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -36,6 +37,8 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The X.509 Client Certificate Filter
@@ -70,10 +73,16 @@ public class X509ClientCertificateFilter implements WebFilter {
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        // Try to get the current authentication credentials/certificate
         return ReactiveSecurityContextHolder.getContext()
-                .doOnNext(context -> {
-                    // Try to get the current authentication credentials
-                    Optional.of(context)
+                .flatMap(context -> {
+                    // Define an atomic reference - Dealing with a Springboot upgrade issue
+                    final AtomicReference<ServerWebExchange> exchangeRef = new AtomicReference<>(exchange);
+
+                    // Get the security context and if it exists try to read
+                    // the SECOM client certificate off of it to populate
+                    // the forwarded message header.
+                    Optional.ofNullable(context)
                             .map(SecurityContext::getAuthentication)
                             .map(Authentication::getCredentials)
                             .filter(X509Certificate.class::isInstance)
@@ -91,20 +100,27 @@ public class X509ClientCertificateFilter implements WebFilter {
                                         .map(c -> {
                                             try {
                                                 return c.getEncoded();
-                                            } catch (CertificateEncodingException ex) {
+                                            } catch (
+                                                    CertificateEncodingException ex) {
                                                 return null;
                                             }
                                         })
                                         .map(Base64.getEncoder()::encodeToString)
                                         .orElse(null);
 
-                                // Append to the request headers
-                                exchange.getRequest().mutate()
-                                        .header(MRN_HEADER, mrn)
-                                        .header(CERT_HEADER, encodedClientX509Certificate);
+                                // Append to the request headers if certificate found
+                                exchangeRef.set(exchange.mutate()
+                                        .request(exchange.getRequest()
+                                                .mutate()
+                                                .header(MRN_HEADER, mrn)
+                                                .header(CERT_HEADER, encodedClientX509Certificate).build()
+                                        ).build());
                             });
+                    // Proceed with the exchange processing
+                    return chain.filter(exchangeRef.get());
                 })
-                .then(chain.filter(exchange));
+                // Handle cases where security context is absent
+                .switchIfEmpty(chain.filter(exchange));
     }
 
 }
