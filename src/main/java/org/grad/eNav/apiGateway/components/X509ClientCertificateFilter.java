@@ -22,6 +22,7 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -35,7 +36,6 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The X.509 Client Certificate Filter
@@ -70,20 +70,18 @@ public class X509ClientCertificateFilter implements WebFilter {
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        // Try to get the current authentication credentials/certificate
+        // Get the security context and if it exists try to read the SECOM
+        // client certificate off of it to populate the forwarded message
+        // header.
         return ReactiveSecurityContextHolder.getContext()
-                .flatMap(context -> {
-                    // Define an atomic reference - Dealing with a Springboot upgrade issue
-                    final AtomicReference<ServerWebExchange> exchangeRef = new AtomicReference<>(exchange);
-
-                    // Get the security context and if it exists try to read
-                    // the SECOM client certificate off of it to populate
-                    // the forwarded message header.
-                    Optional.ofNullable(context)
-                            .map(SecurityContext::getAuthentication)
-                            .map(Authentication::getCredentials)
+                .map(SecurityContext::getAuthentication)
+                .map(Authentication::getCredentials)
+                .defaultIfEmpty(Mono.empty())
+                .flatMap(x509Certificate -> {
+                    // Usr the SECOM client certificate to populate the headers
+                    return Optional.ofNullable(x509Certificate)
                             .filter(X509Certificate.class::isInstance)
-                            .ifPresent(credentials -> {
+                            .map(credentials -> {
                                 final X509Certificate clientX509Certificate = (X509Certificate) credentials;
                                 final X500Name x500Name = new X500Name(clientX509Certificate.getSubjectX500Principal()
                                         .getName(X500Principal.RFC2253));
@@ -105,18 +103,20 @@ public class X509ClientCertificateFilter implements WebFilter {
                                         .orElse(null);
 
                                 // Append to the request headers if certificate found
-                                exchangeRef.set(exchange.mutate()
-                                        .request(exchange.getRequest()
-                                                .mutate()
-                                                .header(MRN_HEADER, mrn)
-                                                .header(CERT_HEADER, encodedClientX509Certificate).build()
-                                        ).build());
-                            });
-                    // Proceed with the exchange processing
-                    return chain.filter(exchangeRef.get());
-                })
-                // Handle cases where security context is absent
-                .switchIfEmpty(chain.filter(exchange));
+                                final ServerHttpRequest request = exchange.getRequest()
+                                        .mutate()
+                                        .header(MRN_HEADER, mrn)
+                                        .header(CERT_HEADER, encodedClientX509Certificate)
+                                        .build();
+                                // And continue
+                                return chain.filter(exchange
+                                        .mutate()
+                                        .request(request)
+                                        .build()
+                                );
+                            })
+                            .orElseGet(() -> chain.filter(exchange));
+                });
     }
 
 }

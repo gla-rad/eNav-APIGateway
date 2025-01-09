@@ -150,11 +150,15 @@ class SpringSecurityConfig {
              )
             .authorizeExchange(exchanges -> exchanges
                     .matchers(EndpointRequest.to(
-                        InfoEndpoint.class,         //info endpoints
-                        HealthEndpoint.class        //health endpoints
+                            InfoEndpoint.class,         //info endpoints
+                            HealthEndpoint.class        //health endpoints
                     )).permitAll()
-                    .pathMatchers(this.openResources).permitAll()
-                    .matchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
+                    .matchers(
+                            EndpointRequest.toAnyEndpoint()
+                    ).hasRole("ACTUATOR")
+                    .pathMatchers(
+                            this.openResources
+                    ).permitAll()
                     .pathMatchers(
                             "/*/actuator",
                             "/*/actuator/**"
