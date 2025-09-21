@@ -140,7 +140,7 @@ public class StripContextAndPrefixGatewayFilterFactory extends AbstractGatewayFi
 
                 ServerHttpRequest newRequest = request.mutate().contextPath(contextPath).path(newPath.toString()).build();
                 exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newRequest.getURI());
-                log.info("New request URI: " + newRequest.getURI().toString());
+                log.debug("New request URI: " + newRequest.getURI().toString());
                 return chain.filter(exchange.mutate().request(newRequest).build());
             }
 
