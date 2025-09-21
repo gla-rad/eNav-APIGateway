@@ -16,6 +16,7 @@
 
 package org.grad.eNav.apiGateway.components;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -75,6 +76,7 @@ import java.util.stream.Collectors;
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
+@Slf4j
 @Component
 public class StripContextAndPrefixGatewayFilterFactory extends AbstractGatewayFilterFactory<StripPrefixGatewayFilterFactory.Config> {
 
@@ -138,6 +140,7 @@ public class StripContextAndPrefixGatewayFilterFactory extends AbstractGatewayFi
 
                 ServerHttpRequest newRequest = request.mutate().contextPath(contextPath).path(newPath.toString()).build();
                 exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newRequest.getURI());
+                log.info("New request URI: " + newRequest.getURI().toString());
                 return chain.filter(exchange.mutate().request(newRequest).build());
             }
 
