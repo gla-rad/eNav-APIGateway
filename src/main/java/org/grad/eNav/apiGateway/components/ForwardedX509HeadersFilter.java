@@ -61,9 +61,9 @@ public class ForwardedX509HeadersFilter extends AuthenticationWebFilter {
             ServerHttpRequest request = exchange.getRequest();
 
             // Decide on whether to apply the filter
-            return request.getHeaders().containsKey(X_SSL_FORWARDED_HEADER)
-                    && request.getHeaders().containsKey(X_SSL_VERIFY_HEADER)
-                    && request.getHeaders().containsKey(X_SSL_CERT_HEADER)
+            return request.getHeaders().containsHeader(X_SSL_FORWARDED_HEADER)
+                    && request.getHeaders().containsHeader(X_SSL_VERIFY_HEADER)
+                    && request.getHeaders().containsHeader(X_SSL_CERT_HEADER)
                     ? ServerWebExchangeMatcher.MatchResult.match()
                     : ServerWebExchangeMatcher.MatchResult.notMatch();
         });
