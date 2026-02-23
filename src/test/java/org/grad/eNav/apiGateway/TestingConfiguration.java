@@ -29,14 +29,4 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @TestConfiguration
 public class TestingConfiguration {
 
-    /**
-     * Defines the security test web-filter chains.
-     */
-    @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        return http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .build();
-    }
-
 }
