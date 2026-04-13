@@ -18,9 +18,11 @@ package org.grad.eNav.apiGateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
+@Import(TestingConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 class APIGatewayTest {
 
