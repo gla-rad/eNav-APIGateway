@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 GLA Research and Development Directorate
+ * Copyright (c) 2026 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class ForwardedX509AuthenticationConverter implements ServerAuthenticatio
             final HttpHeaders httpHeaders = request.getHeaders();
 
             // Check if there is a certificate in the headers being forwarded
-            if(!httpHeaders.containsKey(X_SSL_CERT_HEADER) || Objects.isNull(httpHeaders.getFirst(X_SSL_CERT_HEADER))) {
+            if(!httpHeaders.containsHeader(X_SSL_CERT_HEADER) || Objects.isNull(httpHeaders.getFirst(X_SSL_CERT_HEADER))) {
                 return Mono.just(new PreAuthenticatedAuthenticationToken("unauthorised", "unauthorised"));
             }
             log.debug("Accessing the X509 authentication due to an SSL certificate in the header...");

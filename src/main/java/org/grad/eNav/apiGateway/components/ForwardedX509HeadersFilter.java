@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 GLA Research and Development Directorate
+ * Copyright (c) 2026 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,9 +61,9 @@ public class ForwardedX509HeadersFilter extends AuthenticationWebFilter {
             ServerHttpRequest request = exchange.getRequest();
 
             // Decide on whether to apply the filter
-            return request.getHeaders().containsKey(X_SSL_FORWARDED_HEADER)
-                    && request.getHeaders().containsKey(X_SSL_VERIFY_HEADER)
-                    && request.getHeaders().containsKey(X_SSL_CERT_HEADER)
+            return request.getHeaders().containsHeader(X_SSL_FORWARDED_HEADER)
+                    && request.getHeaders().containsHeader(X_SSL_VERIFY_HEADER)
+                    && request.getHeaders().containsHeader(X_SSL_CERT_HEADER)
                     ? ServerWebExchangeMatcher.MatchResult.match()
                     : ServerWebExchangeMatcher.MatchResult.notMatch();
         });
